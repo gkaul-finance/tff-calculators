@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 7: Bond & Stock Pricer | The Finance Framework</title>
+    <style>
+        :root { --maize: #FFCB05; --blue: #00274C; --light-blue: #E6EEF4; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #fff; min-height: 100vh; padding: 20px; }
+        .container { max-width: 520px; margin: 0 auto; }
+        .header { background-color: var(--blue); color: white; padding: 20px; border-radius: 12px 12px 0 0; text-align: center; }
+        .header .chapter { font-size: 0.9rem; opacity: 0.9; margin-bottom: 5px; }
+        .header h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 8px; }
+        .header p { font-size: 0.85rem; opacity: 0.8; }
+        .tabs { display: flex; background-color: var(--light-blue); border-left: 2px solid var(--blue); border-right: 2px solid var(--blue); }
+        .tab { flex: 1; padding: 12px 8px; border: none; background-color: transparent; color: var(--blue); cursor: pointer; font-weight: 600; font-size: 0.9rem; text-align: center; }
+        .tab.active { background-color: var(--blue); color: white; }
+        .tab .desc { font-size: 0.7rem; font-weight: 400; opacity: 0.8; margin-top: 2px; }
+        .main-content { background-color: var(--light-blue); padding: 20px; border-radius: 0 0 12px 12px; border: 2px solid var(--blue); border-top: none; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 6px; color: var(--blue); font-size: 0.9rem; }
+        .form-group.disabled { opacity: 0.5; }
+        .input-wrapper { position: relative; }
+        .input-wrapper .prefix, .input-wrapper .suffix { position: absolute; top: 50%; transform: translateY(-50%); color: #666; font-weight: 500; }
+        .input-wrapper .prefix { left: 12px; }
+        .input-wrapper .suffix { right: 12px; }
+        input, select { width: 100%; padding: 12px; font-size: 1rem; border: 2px solid var(--maize); border-radius: 8px; background-color: white; }
+        input:focus, select:focus { outline: none; border-color: var(--blue); }
+        input:disabled { background-color: #f5f5f5; border-color: #ddd; }
+        input.has-prefix { padding-left: 28px; }
+        input.has-suffix { padding-right: 35px; }
+        select { cursor: pointer; color: var(--blue); font-weight: 500; border-color: var(--blue); }
+        .input-row { display: flex; gap: 15px; }
+        .input-row .form-group { flex: 1; }
+        .formula-box { background-color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; border: 1px solid var(--maize); }
+        .formula-box .label { font-size: 0.85rem; color: #666; margin-bottom: 5px; }
+        .formula-box .formula { font-family: Georgia, serif; font-size: 1rem; color: var(--blue); font-weight: 500; }
+        .button-row { display: flex; gap: 10px; margin: 20px 0; }
+        .btn { padding: 14px; font-size: 1rem; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; }
+        .btn-primary { flex: 2; background-color: var(--maize); color: var(--blue); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,39,76,0.3); }
+        .btn-secondary { flex: 1; background-color: white; color: var(--blue); border: 2px solid var(--blue); }
+        .error-box { background-color: #fee2e2; color: #dc2626; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; text-align: center; display: none; }
+        .classification-banner { padding: 12px; border-radius: 8px; text-align: center; font-weight: 600; margin-bottom: 15px; display: none; }
+        .classification-banner.premium { background-color: #dcfce7; color: #16a34a; border: 2px solid #16a34a; }
+        .classification-banner.discount { background-color: #fee2e2; color: #dc2626; border: 2px solid #dc2626; }
+        .classification-banner.par { background-color: #fef3c7; color: #92400e; border: 2px solid #f59e0b; }
+        .classification-banner.growth { background-color: #dbeafe; color: #1d4ed8; border: 2px solid #3b82f6; }
+        .results-box { background-color: var(--blue); color: white; padding: 20px; border-radius: 8px; display: none; margin-bottom: 15px; }
+        .result-main { text-align: center; margin-bottom: 15px; }
+        .result-main .label { font-size: 0.9rem; opacity: 0.9; margin-bottom: 5px; }
+        .result-main .value { font-size: 2.2rem; font-weight: 700; color: var(--maize); }
+        .result-details { background-color: rgba(255,255,255,0.1); padding: 12px; border-radius: 6px; font-size: 0.85rem; }
+        .result-details .row { display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .result-details .row:last-child { margin-bottom: 0; }
+        .result-details .row .val { color: var(--maize); font-weight: 600; }
+        .helper-text { padding: 15px; background-color: white; border-radius: 8px; font-size: 0.85rem; color: #666; line-height: 1.5; }
+        .helper-text strong { color: var(--blue); }
+        .footer { text-align: center; margin-top: 15px; font-size: 0.8rem; color: #999; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="chapter">Chapter 7</div>
+            <h1>Bond & Stock Pricer</h1>
+            <p>The Finance Framework</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('bond')">
+                <div>Bonds</div>
+                <div class="desc">Price ↔ YTM</div>
+            </button>
+            <button class="tab" onclick="switchTab('stock')">
+                <div>Stocks</div>
+                <div class="desc">Dividend Discount</div>
+            </button>
+        </div>
+        
+        <div class="main-content">
+            <!-- BOND TAB -->
+            <div class="tab-content active" id="bond-tab">
+                <div class="form-group">
+                    <label>Solve For:</label>
+                    <select id="bondSolveFor" onchange="updateBondMode()">
+                        <option value="Price">Bond Price</option>
+                        <option value="YTM">Yield to Maturity</option>
+                    </select>
+                </div>
+                
+                <div class="formula-box">
+                    <div class="label">Bond Pricing Formula</div>
+                    <div class="formula">Price = Σ(C/(1+y)<sup>t</sup>) + Face/(1+y)<sup>n</sup></div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Face Value (Par)</label>
+                    <div class="input-wrapper">
+                        <span class="prefix">$</span>
+                        <input type="number" id="faceValue" class="has-prefix" value="1000">
+                    </div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="form-group">
+                        <label>Coupon Rate (Annual)</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="couponRate" step="0.01" class="has-suffix" placeholder="e.g., 5">
+                            <span class="suffix">%</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Years to Maturity</label>
+                        <input type="number" id="maturity" step="1" placeholder="e.g., 10">
+                    </div>
+                </div>
+                
+                <div class="form-group" id="ytm-group">
+                    <label>Yield to Maturity (YTM)</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="ytm" step="0.01" class="has-suffix" placeholder="e.g., 6">
+                        <span class="suffix">%</span>
+                    </div>
+                </div>
+                
+                <div class="form-group disabled" id="bondPrice-group">
+                    <label>Current Price — Solving</label>
+                    <div class="input-wrapper">
+                        <span class="prefix">$</span>
+                        <input type="number" id="bondPrice" class="has-prefix" placeholder="e.g., 950" disabled>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- STOCK TAB -->
+            <div class="tab-content" id="stock-tab">
+                <div class="form-group">
+                    <label>Model:</label>
+                    <select id="stockModel" onchange="updateStockMode()">
+                        <option value="gordon">Gordon Growth Model (constant growth)</option>
+                        <option value="zerogrowth">Zero Growth (perpetuity)</option>
+                        <option value="multistage">Two-Stage Growth</option>
+                    </select>
+                </div>
+                
+                <div class="formula-box" id="stock-formula">
+                    <div class="label">Gordon Growth Model</div>
+                    <div class="formula">P₀ = D₁ / (r − g)</div>
+                </div>
+                
+                <div class="form-group">
+                    <label id="dividend-label">Next Year's Dividend (D₁)</label>
+                    <div class="input-wrapper">
+                        <span class="prefix">$</span>
+                        <input type="number" id="dividend" class="has-prefix" step="0.01" placeholder="e.g., 2.00">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Required Return (r)</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="requiredReturn" step="0.1" class="has-suffix" placeholder="e.g., 10">
+                        <span class="suffix">%</span>
+                    </div>
+                </div>
+                
+                <div class="form-group" id="growth-group">
+                    <label>Dividend Growth Rate (g)</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="growthRate" step="0.1" class="has-suffix" placeholder="e.g., 3">
+                        <span class="suffix">%</span>
+                    </div>
+                </div>
+                
+                <div id="twostage-inputs" style="display: none;">
+                    <div class="input-row">
+                        <div class="form-group">
+                            <label>High Growth Rate</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="highGrowth" step="0.1" class="has-suffix" placeholder="e.g., 15">
+                                <span class="suffix">%</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>High Growth Years</label>
+                            <input type="number" id="highGrowthYears" placeholder="e.g., 5">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Terminal Growth Rate</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="terminalGrowth" step="0.1" class="has-suffix" placeholder="e.g., 3">
+                            <span class="suffix">%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="button-row">
+                <button class="btn btn-primary" id="calc-btn" onclick="calculate()">Calculate Price</button>
+                <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+            </div>
+            
+            <div class="error-box" id="error"></div>
+            <div class="classification-banner" id="classification"></div>
+            
+            <div class="results-box" id="results">
+                <div class="result-main">
+                    <div class="label" id="result-label">Price</div>
+                    <div class="value" id="result-value">$0.00</div>
+                </div>
+                <div class="result-details" id="result-details"></div>
+            </div>
+            
+            <div class="helper-text" id="helper-text">
+                <strong>Premium Bond:</strong> Price > Face (Coupon Rate > YTM)<br>
+                <strong>Discount Bond:</strong> Price < Face (Coupon Rate < YTM)
+            </div>
+        </div>
+        
+        <div class="footer">
+            © The Finance Framework — Professor Gautam Kaul<br>
+            Ross School of Business, University of Michigan
+        </div>
+    </div>
+    
+    <script>
+        let currentTab = 'bond';
+        
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelector(`.tab:nth-child(${tab === 'bond' ? 1 : 2})`).classList.add('active');
+            document.getElementById(tab + '-tab').classList.add('active');
+            
+            document.getElementById('calc-btn').textContent = tab === 'bond' ? 'Calculate' : 'Calculate Price';
+            document.getElementById('helper-text').innerHTML = tab === 'bond' 
+                ? '<strong>Premium Bond:</strong> Price > Face (Coupon Rate > YTM)<br><strong>Discount Bond:</strong> Price < Face (Coupon Rate < YTM)'
+                : '<strong>Gordon Model:</strong> Assumes constant dividend growth forever.<br><strong>Key constraint:</strong> Required return (r) must exceed growth rate (g).';
+            
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('classification').style.display = 'none';
+            document.getElementById('results').style.display = 'none';
+        }
+        
+        function updateBondMode() {
+            const solveFor = document.getElementById('bondSolveFor').value;
+            const ytmGroup = document.getElementById('ytm-group');
+            const priceGroup = document.getElementById('bondPrice-group');
+            
+            if (solveFor === 'Price') {
+                ytmGroup.classList.remove('disabled');
+                priceGroup.classList.add('disabled');
+                document.getElementById('ytm').disabled = false;
+                document.getElementById('bondPrice').disabled = true;
+                document.querySelector('#ytm-group label').textContent = 'Yield to Maturity (YTM)';
+                document.querySelector('#bondPrice-group label').textContent = 'Current Price — Solving';
+            } else {
+                ytmGroup.classList.add('disabled');
+                priceGroup.classList.remove('disabled');
+                document.getElementById('ytm').disabled = true;
+                document.getElementById('bondPrice').disabled = false;
+                document.querySelector('#ytm-group label').textContent = 'Yield to Maturity — Solving';
+                document.querySelector('#bondPrice-group label').textContent = 'Current Price';
+            }
+        }
+        
+        function updateStockMode() {
+            const model = document.getElementById('stockModel').value;
+            const growthGroup = document.getElementById('growth-group');
+            const twoStage = document.getElementById('twostage-inputs');
+            const formula = document.getElementById('stock-formula');
+            
+            if (model === 'zerogrowth') {
+                growthGroup.style.display = 'none';
+                twoStage.style.display = 'none';
+                formula.innerHTML = '<div class="label">Zero Growth (Perpetuity)</div><div class="formula">P₀ = D / r</div>';
+            } else if (model === 'gordon') {
+                growthGroup.style.display = 'block';
+                twoStage.style.display = 'none';
+                formula.innerHTML = '<div class="label">Gordon Growth Model</div><div class="formula">P₀ = D₁ / (r − g)</div>';
+            } else {
+                growthGroup.style.display = 'none';
+                twoStage.style.display = 'block';
+                formula.innerHTML = '<div class="label">Two-Stage Growth Model</div><div class="formula">P₀ = PV(high growth dividends) + PV(terminal value)</div>';
+            }
+        }
+        
+        function calculate() {
+            const errorBox = document.getElementById('error');
+            const classificationBanner = document.getElementById('classification');
+            const resultsBox = document.getElementById('results');
+            
+            errorBox.style.display = 'none';
+            classificationBanner.style.display = 'none';
+            resultsBox.style.display = 'none';
+            
+            try {
+                if (currentTab === 'bond') calculateBond();
+                else calculateStock();
+            } catch (err) {
+                errorBox.textContent = err.message;
+                errorBox.style.display = 'block';
+            }
+        }
+        
+        function calculateBond() {
+            const solveFor = document.getElementById('bondSolveFor').value;
+            const faceValue = parseFloat(document.getElementById('faceValue').value);
+            const couponRate = parseFloat(document.getElementById('couponRate').value) / 100;
+            const maturity = parseFloat(document.getElementById('maturity').value);
+            const ytmInput = parseFloat(document.getElementById('ytm').value) / 100;
+            const priceInput = parseFloat(document.getElementById('bondPrice').value);
+            
+            if (isNaN(faceValue) || faceValue <= 0) throw new Error('Please enter face value');
+            if (isNaN(couponRate) || couponRate < 0) throw new Error('Please enter coupon rate');
+            if (isNaN(maturity) || maturity <= 0) throw new Error('Please enter maturity');
+            
+            let price, ytm;
+            const annualCoupon = faceValue * couponRate;
+            
+            if (solveFor === 'Price') {
+                if (isNaN(ytmInput)) throw new Error('Please enter YTM');
+                ytm = ytmInput;
+                price = 0;
+                for (let t = 1; t <= maturity; t++) price += annualCoupon / Math.pow(1 + ytm, t);
+                price += faceValue / Math.pow(1 + ytm, maturity);
+            } else {
+                if (isNaN(priceInput) || priceInput <= 0) throw new Error('Please enter price');
+                price = priceInput;
+                ytm = couponRate;
+                for (let i = 0; i < 1000; i++) {
+                    let calcPrice = 0;
+                    let dPrice = 0;
+                    for (let t = 1; t <= maturity; t++) {
+                        calcPrice += annualCoupon / Math.pow(1 + ytm, t);
+                        dPrice -= t * annualCoupon / Math.pow(1 + ytm, t + 1);
+                    }
+                    calcPrice += faceValue / Math.pow(1 + ytm, maturity);
+                    dPrice -= maturity * faceValue / Math.pow(1 + ytm, maturity + 1);
+                    if (Math.abs(calcPrice - price) < 0.0001) break;
+                    ytm = ytm - (calcPrice - price) / dPrice;
+                }
+            }
+            
+            const classification = document.getElementById('classification');
+            if (price > faceValue * 1.01) {
+                classification.textContent = 'PREMIUM BOND — Price > Face Value';
+                classification.className = 'classification-banner premium';
+            } else if (price < faceValue * 0.99) {
+                classification.textContent = 'DISCOUNT BOND — Price < Face Value';
+                classification.className = 'classification-banner discount';
+            } else {
+                classification.textContent = 'PAR BOND — Price ≈ Face Value';
+                classification.className = 'classification-banner par';
+            }
+            classification.style.display = 'block';
+            
+            document.getElementById('result-label').textContent = solveFor === 'Price' ? 'Bond Price' : 'Yield to Maturity';
+            document.getElementById('result-value').textContent = solveFor === 'Price' 
+                ? '$' + price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                : (ytm * 100).toFixed(4) + '%';
+            document.getElementById('result-details').innerHTML = `
+                <div class="row"><span>Annual Coupon:</span><span class="val">$${annualCoupon.toFixed(2)}</span></div>
+                <div class="row"><span>Total Coupons:</span><span class="val">$${(annualCoupon * maturity).toFixed(2)}</span></div>
+                <div class="row"><span>Current Yield:</span><span class="val">${(annualCoupon / price * 100).toFixed(2)}%</span></div>
+            `;
+            document.getElementById('results').style.display = 'block';
+        }
+        
+        function calculateStock() {
+            const model = document.getElementById('stockModel').value;
+            const dividend = parseFloat(document.getElementById('dividend').value);
+            const requiredReturn = parseFloat(document.getElementById('requiredReturn').value) / 100;
+            
+            if (isNaN(dividend) || dividend <= 0) throw new Error('Please enter dividend');
+            if (isNaN(requiredReturn) || requiredReturn <= 0) throw new Error('Please enter required return');
+            
+            let price, details;
+            
+            if (model === 'zerogrowth') {
+                price = dividend / requiredReturn;
+                details = `<div class="row"><span>Dividend:</span><span class="val">$${dividend.toFixed(2)}</span></div>
+                           <div class="row"><span>Required Return:</span><span class="val">${(requiredReturn * 100).toFixed(2)}%</span></div>`;
+            } else if (model === 'gordon') {
+                const growthRate = parseFloat(document.getElementById('growthRate').value) / 100;
+                if (isNaN(growthRate)) throw new Error('Please enter growth rate');
+                if (growthRate >= requiredReturn) throw new Error('Growth rate must be less than required return');
+                price = dividend / (requiredReturn - growthRate);
+                const dividendYield = dividend / price;
+                details = `<div class="row"><span>Dividend Yield:</span><span class="val">${(dividendYield * 100).toFixed(2)}%</span></div>
+                           <div class="row"><span>Capital Gains Yield:</span><span class="val">${(growthRate * 100).toFixed(2)}%</span></div>
+                           <div class="row"><span>Total Return:</span><span class="val">${(requiredReturn * 100).toFixed(2)}%</span></div>`;
+            } else {
+                const highGrowth = parseFloat(document.getElementById('highGrowth').value) / 100;
+                const highYears = parseFloat(document.getElementById('highGrowthYears').value);
+                const terminalGrowth = parseFloat(document.getElementById('terminalGrowth').value) / 100;
+                
+                if (isNaN(highGrowth) || isNaN(highYears) || isNaN(terminalGrowth)) throw new Error('Please fill all two-stage inputs');
+                if (terminalGrowth >= requiredReturn) throw new Error('Terminal growth must be less than required return');
+                
+                let pvDividends = 0;
+                let currentDiv = dividend;
+                for (let t = 1; t <= highYears; t++) {
+                    pvDividends += currentDiv / Math.pow(1 + requiredReturn, t);
+                    currentDiv *= (1 + highGrowth);
+                }
+                const terminalDiv = currentDiv * (1 + terminalGrowth);
+                const terminalValue = terminalDiv / (requiredReturn - terminalGrowth);
+                const pvTerminal = terminalValue / Math.pow(1 + requiredReturn, highYears);
+                price = pvDividends + pvTerminal;
+                
+                details = `<div class="row"><span>PV of High-Growth Dividends:</span><span class="val">$${pvDividends.toFixed(2)}</span></div>
+                           <div class="row"><span>Terminal Value (Year ${highYears}):</span><span class="val">$${terminalValue.toFixed(2)}</span></div>
+                           <div class="row"><span>PV of Terminal Value:</span><span class="val">$${pvTerminal.toFixed(2)}</span></div>`;
+            }
+            
+            const classification = document.getElementById('classification');
+            classification.textContent = model === 'zerogrowth' ? 'INCOME STOCK — No Growth' : 'GROWTH STOCK';
+            classification.className = 'classification-banner growth';
+            classification.style.display = 'block';
+            
+            document.getElementById('result-label').textContent = 'Stock Price';
+            document.getElementById('result-value').textContent = '$' + price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById('result-details').innerHTML = details;
+            document.getElementById('results').style.display = 'block';
+        }
+        
+        function clearAll() {
+            document.querySelectorAll('input[type="number"]').forEach(input => {
+                if (input.id === 'faceValue') input.value = '1000';
+                else input.value = '';
+            });
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('classification').style.display = 'none';
+            document.getElementById('results').style.display = 'none';
+        }
+        
+        updateBondMode();
+        updateStockMode();
+    </script>
+</body>
+</html>

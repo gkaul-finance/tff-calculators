@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 1: TVM Calculator | The Finance Framework</title>
+    <style>
+        :root {
+            --maize: #FFCB05;
+            --blue: #00274C;
+            --light-blue: #E6EEF4;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container { max-width: 500px; margin: 0 auto; }
+        
+        .header {
+            background-color: var(--blue);
+            color: white;
+            padding: 20px;
+            border-radius: 12px 12px 0 0;
+            text-align: center;
+        }
+        
+        .header .chapter { font-size: 0.9rem; opacity: 0.9; margin-bottom: 5px; }
+        .header h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 8px; }
+        .header p { font-size: 0.85rem; opacity: 0.8; }
+        
+        .main-content {
+            background-color: var(--light-blue);
+            padding: 20px;
+            border-radius: 0 0 12px 12px;
+            border: 2px solid var(--blue);
+            border-top: none;
+        }
+        
+        .form-group { margin-bottom: 15px; }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--blue);
+            font-size: 0.9rem;
+        }
+        
+        .form-group.disabled { opacity: 0.5; }
+        
+        .input-wrapper { position: relative; }
+        
+        .input-wrapper .prefix,
+        .input-wrapper .suffix {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .input-wrapper .prefix { left: 12px; }
+        .input-wrapper .suffix { right: 12px; }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background-color: white;
+        }
+        
+        input:focus, select:focus { outline: none; border-color: var(--blue); }
+        input.required-input { border-color: var(--maize); }
+        input.has-prefix { padding-left: 28px; }
+        input.has-suffix { padding-right: 35px; }
+        input:disabled { background-color: #f5f5f5; }
+        
+        select { cursor: pointer; color: var(--blue); font-weight: 500; border-color: var(--blue); }
+        
+        .formula-box {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 1px solid var(--maize);
+        }
+        
+        .formula-box .label { font-size: 0.85rem; color: #666; margin-bottom: 5px; }
+        .formula-box .formula { font-family: Georgia, serif; font-size: 1.2rem; color: var(--blue); font-weight: 500; }
+        
+        .button-row { display: flex; gap: 10px; margin-bottom: 20px; }
+        
+        .btn {
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        
+        .btn-primary { flex: 2; background-color: var(--maize); color: var(--blue); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,39,76,0.3); }
+        .btn-secondary { flex: 1; background-color: white; color: var(--blue); border: 2px solid var(--blue); }
+        
+        .error-box {
+            background-color: #fee2e2;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            text-align: center;
+            display: none;
+        }
+        
+        .result-box {
+            background-color: var(--blue);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+        
+        .result-box .result-label { font-size: 0.9rem; opacity: 0.9; margin-bottom: 5px; }
+        .result-box .result-value { font-size: 2rem; font-weight: 700; color: var(--maize); }
+        
+        .helper-text {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        .helper-text strong { color: var(--blue); }
+        
+        .footer {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="chapter">Chapter 1</div>
+            <h1>Time Value of Money Calculator</h1>
+            <p>The Finance Framework</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="form-group">
+                <label>Solve For:</label>
+                <select id="solveFor" onchange="updateInputs()">
+                    <option value="FV">Future Value (FV)</option>
+                    <option value="PV">Present Value (PV)</option>
+                    <option value="Rate">Interest Rate (r)</option>
+                    <option value="Periods">Number of Periods (n)</option>
+                </select>
+            </div>
+            
+            <div class="formula-box">
+                <div class="label">Core TVM Formula</div>
+                <div class="formula">FV = PV × (1 + r)<sup>n</sup></div>
+            </div>
+            
+            <div class="form-group" id="pv-group">
+                <label id="pv-label">Present Value (PV)</label>
+                <div class="input-wrapper">
+                    <span class="prefix">$</span>
+                    <input type="number" id="pv" class="has-prefix required-input" placeholder="e.g., 1000">
+                </div>
+            </div>
+            
+            <div class="form-group disabled" id="fv-group">
+                <label id="fv-label">Future Value (FV) — Solving</label>
+                <div class="input-wrapper">
+                    <span class="prefix">$</span>
+                    <input type="number" id="fv" class="has-prefix" placeholder="e.g., 1500" disabled>
+                </div>
+            </div>
+            
+            <div class="form-group" id="rate-group">
+                <label id="rate-label">Interest Rate (r)</label>
+                <div class="input-wrapper">
+                    <input type="number" id="rate" step="0.01" class="has-suffix required-input" placeholder="e.g., 8">
+                    <span class="suffix">%</span>
+                </div>
+            </div>
+            
+            <div class="form-group" id="periods-group">
+                <label id="periods-label">Number of Periods (n)</label>
+                <input type="number" id="periods" step="1" class="required-input" placeholder="e.g., 5">
+            </div>
+            
+            <div class="button-row">
+                <button class="btn btn-primary" id="calc-btn" onclick="calculate()">Calculate FV</button>
+                <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+            </div>
+            
+            <div class="error-box" id="error"></div>
+            
+            <div class="result-box" id="result">
+                <div class="result-label" id="result-label">Future Value</div>
+                <div class="result-value" id="result-value">$0.00</div>
+            </div>
+            
+            <div class="helper-text">
+                <strong>How to use:</strong> Select what you want to solve for, enter the known values (highlighted with gold borders), then click Calculate.
+                <br><br>
+                <strong>Note:</strong> Enter rate as a percentage (e.g., 8 for 8%). Periods can be years, months, or any consistent time unit.
+            </div>
+        </div>
+        
+        <div class="footer">
+            © The Finance Framework — Professor Gautam Kaul<br>
+            Ross School of Business, University of Michigan
+        </div>
+    </div>
+    
+    <script>
+        const solveConfigs = {
+            'FV': { inputs: ['pv', 'rate', 'periods'], disabled: 'fv' },
+            'PV': { inputs: ['fv', 'rate', 'periods'], disabled: 'pv' },
+            'Rate': { inputs: ['pv', 'fv', 'periods'], disabled: 'rate' },
+            'Periods': { inputs: ['pv', 'fv', 'rate'], disabled: 'periods' }
+        };
+        
+        function updateInputs() {
+            const solveFor = document.getElementById('solveFor').value;
+            const config = solveConfigs[solveFor];
+            
+            ['pv', 'fv', 'rate', 'periods'].forEach(id => {
+                const input = document.getElementById(id);
+                const group = document.getElementById(id + '-group');
+                const label = document.getElementById(id + '-label');
+                
+                const labels = {
+                    'pv': 'Present Value (PV)',
+                    'fv': 'Future Value (FV)',
+                    'rate': 'Interest Rate (r)',
+                    'periods': 'Number of Periods (n)'
+                };
+                
+                if (id === config.disabled) {
+                    input.disabled = true;
+                    input.classList.remove('required-input');
+                    group.classList.add('disabled');
+                    label.textContent = labels[id] + ' — Solving';
+                } else {
+                    input.disabled = false;
+                    input.classList.add('required-input');
+                    group.classList.remove('disabled');
+                    label.textContent = labels[id];
+                }
+            });
+            
+            document.getElementById('calc-btn').textContent = 'Calculate ' + solveFor;
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+        }
+        
+        function calculate() {
+            const solveFor = document.getElementById('solveFor').value;
+            const pv = parseFloat(document.getElementById('pv').value);
+            const fv = parseFloat(document.getElementById('fv').value);
+            const rate = parseFloat(document.getElementById('rate').value) / 100;
+            const periods = parseFloat(document.getElementById('periods').value);
+            
+            const errorBox = document.getElementById('error');
+            const resultBox = document.getElementById('result');
+            
+            errorBox.style.display = 'none';
+            resultBox.style.display = 'none';
+            
+            let result, label, formatted;
+            
+            try {
+                switch (solveFor) {
+                    case 'FV':
+                        if (isNaN(pv) || isNaN(rate) || isNaN(periods)) throw new Error('Please enter PV, Rate, and Periods');
+                        result = pv * Math.pow(1 + rate, periods);
+                        label = 'Future Value';
+                        formatted = '$' + result.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                        break;
+                    case 'PV':
+                        if (isNaN(fv) || isNaN(rate) || isNaN(periods)) throw new Error('Please enter FV, Rate, and Periods');
+                        result = fv / Math.pow(1 + rate, periods);
+                        label = 'Present Value';
+                        formatted = '$' + result.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                        break;
+                    case 'Rate':
+                        if (isNaN(pv) || isNaN(fv) || isNaN(periods)) throw new Error('Please enter PV, FV, and Periods');
+                        if (pv <= 0 || fv <= 0) throw new Error('PV and FV must be positive');
+                        if (periods === 0) throw new Error('Periods cannot be zero');
+                        result = (Math.pow(fv / pv, 1 / periods) - 1) * 100;
+                        label = 'Interest Rate';
+                        formatted = result.toFixed(4) + '%';
+                        break;
+                    case 'Periods':
+                        if (isNaN(pv) || isNaN(fv) || isNaN(rate)) throw new Error('Please enter PV, FV, and Rate');
+                        if (pv <= 0 || fv <= 0) throw new Error('PV and FV must be positive');
+                        if (rate <= 0) throw new Error('Rate must be positive');
+                        result = Math.log(fv / pv) / Math.log(1 + rate);
+                        label = 'Number of Periods';
+                        formatted = result.toFixed(2) + ' periods';
+                        break;
+                }
+                
+                document.getElementById('result-label').textContent = label;
+                document.getElementById('result-value').textContent = formatted;
+                resultBox.style.display = 'block';
+            } catch (err) {
+                errorBox.textContent = err.message;
+                errorBox.style.display = 'block';
+            }
+        }
+        
+        function clearAll() {
+            document.getElementById('pv').value = '';
+            document.getElementById('fv').value = '';
+            document.getElementById('rate').value = '';
+            document.getElementById('periods').value = '';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('result').style.display = 'none';
+        }
+        
+        updateInputs();
+    </script>
+</body>
+</html>

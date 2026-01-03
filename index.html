@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Finance Framework — Interactive Calculators</title>
+    <style>
+        :root {
+            --maize: #FFCB05;
+            --blue: #00274C;
+            --light-blue: #E6EEF4;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background-color: var(--blue);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--maize);
+        }
+        
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .header .author {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 15px;
+        }
+        
+        .calculator-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-decoration: none;
+            color: inherit;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+            display: block;
+        }
+        
+        .calculator-card:hover {
+            border-color: var(--maize);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,39,76,0.15);
+        }
+        
+        .calculator-card .chapter {
+            font-size: 0.8rem;
+            color: var(--blue);
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .calculator-card h2 {
+            font-size: 1.1rem;
+            color: var(--blue);
+            margin-bottom: 8px;
+        }
+        
+        .calculator-card p {
+            font-size: 0.85rem;
+            color: #666;
+            line-height: 1.4;
+        }
+        
+        .calculator-card .arrow {
+            color: var(--maize);
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #888;
+            font-size: 0.85rem;
+        }
+        
+        .footer a {
+            color: var(--blue);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>The Finance Framework</h1>
+            <p>Interactive Calculators</p>
+            <div class="author">
+                Professor Gautam Kaul<br>
+                Stephen M. Ross School of Business<br>
+                University of Michigan
+            </div>
+        </div>
+        
+        <div class="calculator-grid">
+            <a href="Ch01_TVM_Calculator.html" class="calculator-card">
+                <div class="chapter">Chapter 1</div>
+                <h2>Time Value of Money Calculator</h2>
+                <p>Solve for FV, PV, interest rate, or number of periods. The foundation of all finance.</p>
+                <div class="arrow">→</div>
+            </a>
+            
+            <a href="Ch02_Annuity_Calculator.html" class="calculator-card">
+                <div class="chapter">Chapter 2</div>
+                <h2>Annuity & Perpetuity Calculator</h2>
+                <p>FV and PV of annuities, payment calculations, and perpetuity valuation.</p>
+                <div class="arrow">→</div>
+            </a>
+            
+            <a href="Ch03_Loan_Amortization_Calculator.html" class="calculator-card">
+                <div class="chapter">Chapter 3</div>
+                <h2>Loan Amortization Calculator</h2>
+                <p>Generate full payment schedules with principal and interest breakdown.</p>
+                <div class="arrow">→</div>
+            </a>
+            
+            <a href="Ch04_Savings_Goal_Planner.html" class="calculator-card">
+                <div class="chapter">Chapter 4</div>
+                <h2>Savings Goal Planner</h2>
+                <p>College savings and retirement planning with two-phase visualization.</p>
+                <div class="arrow">→</div>
+            </a>
+            
+            <a href="Ch05_NPV_IRR_Calculator.html" class="calculator-card">
+                <div class="chapter">Chapter 5</div>
+                <h2>NPV & IRR Calculator</h2>
+                <p>Evaluate investments with NPV, IRR, payback period, and profitability index.</p>
+                <div class="arrow">→</div>
+            </a>
+            
+            <a href="Ch06_Cash_Flow_Builder.html" class="calculator-card">
+                <div class="chapter">Chapter 6</div>
+                <h2>Cash Flow Builder</h2>
+                <p>Transform accounting data into Free Cash Flow with step-by-step breakdown.</p>
+                <div class="arrow">→</div>
+            </a>
+            
+            <a href="Ch07_Bond_Stock_Pricer.html" class="calculator-card">
+                <div class="chapter">Chapter 7</div>
+                <h2>Bond & Stock Pricer</h2>
+                <p>Bond pricing and YTM, plus stock valuation with Gordon Growth and DDM models.</p>
+                <div class="arrow">→</div>
+            </a>
+            
+            <a href="Ch08_Risk_Return_Calculator.html" class="calculator-card">
+                <div class="chapter">Chapter 8</div>
+                <h2>Risk & Return Calculator</h2>
+                <p>Calculate mean, variance, and standard deviation from historical returns.</p>
+                <div class="arrow">→</div>
+            </a>
+            
+            <a href="Ch09_CAPM_Calculator.html" class="calculator-card">
+                <div class="chapter">Chapter 9</div>
+                <h2>CAPM & Cost of Equity</h2>
+                <p>Apply the Capital Asset Pricing Model to find expected returns and cost of equity.</p>
+                <div class="arrow">→</div>
+            </a>
+            
+            <a href="Ch10_Leverage_WACC_Calculator.html" class="calculator-card">
+                <div class="chapter">Chapter 10</div>
+                <h2>Leverage & WACC Calculator</h2>
+                <p>Unlever and relever betas, calculate WACC under Modigliani-Miller assumptions.</p>
+                <div class="arrow">→</div>
+            </a>
+        </div>
+        
+        <div class="footer">
+            © The Finance Framework — Professor Gautam Kaul<br>
+            Ross School of Business, University of Michigan<br><br>
+            <em>These calculators accompany "The Finance Framework (with Applications)"</em>
+        </div>
+    </div>
+</body>
+</html>

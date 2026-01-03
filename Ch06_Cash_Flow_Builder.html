@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 6: Cash Flow Builder | The Finance Framework</title>
+    <style>
+        :root { --maize: #FFCB05; --blue: #00274C; --light-blue: #E6EEF4; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #fff; min-height: 100vh; padding: 20px; }
+        .container { max-width: 550px; margin: 0 auto; }
+        .header { background-color: var(--blue); color: white; padding: 20px; border-radius: 12px 12px 0 0; text-align: center; }
+        .header .chapter { font-size: 0.9rem; opacity: 0.9; margin-bottom: 5px; }
+        .header h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 8px; }
+        .header p { font-size: 0.85rem; opacity: 0.8; }
+        .main-content { background-color: var(--light-blue); padding: 20px; border-radius: 0 0 12px 12px; border: 2px solid var(--blue); border-top: none; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 6px; color: var(--blue); font-size: 0.9rem; }
+        .form-group .hint { font-size: 0.75rem; color: #666; margin-top: 3px; }
+        .input-wrapper { position: relative; }
+        .input-wrapper .prefix { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #666; font-weight: 500; }
+        input { width: 100%; padding: 12px; font-size: 1rem; border: 2px solid var(--maize); border-radius: 8px; background-color: white; }
+        input:focus { outline: none; border-color: var(--blue); }
+        input.has-prefix { padding-left: 28px; }
+        .section-title { font-weight: 600; color: var(--blue); font-size: 0.95rem; margin: 20px 0 10px 0; padding-bottom: 5px; border-bottom: 2px solid var(--maize); display: flex; justify-content: space-between; align-items: center; }
+        .section-title .step { background-color: var(--blue); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; }
+        .formula-box { background-color: white; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--maize); }
+        .formula-box .label { font-size: 0.8rem; color: #666; margin-bottom: 5px; }
+        .formula-box .formula { font-family: Georgia, serif; font-size: 0.95rem; color: var(--blue); }
+        .button-row { display: flex; gap: 10px; margin: 20px 0; }
+        .btn { padding: 14px; font-size: 1rem; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; }
+        .btn-primary { flex: 2; background-color: var(--maize); color: var(--blue); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,39,76,0.3); }
+        .btn-secondary { flex: 1; background-color: white; color: var(--blue); border: 2px solid var(--blue); }
+        .error-box { background-color: #fee2e2; color: #dc2626; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; text-align: center; display: none; }
+        .results-box { background-color: var(--blue); color: white; padding: 20px; border-radius: 8px; display: none; margin-bottom: 15px; }
+        .result-main { text-align: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.2); }
+        .result-main .label { font-size: 0.9rem; opacity: 0.9; margin-bottom: 5px; }
+        .result-main .value { font-size: 2.2rem; font-weight: 700; color: var(--maize); }
+        .result-breakdown { font-size: 0.85rem; }
+        .result-breakdown .row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .result-breakdown .row:last-child { border-bottom: none; }
+        .result-breakdown .row.subtotal { background-color: rgba(255,255,255,0.1); margin: 5px -12px; padding: 8px 12px; font-weight: 600; }
+        .result-breakdown .row .val { color: var(--maize); font-weight: 600; }
+        .result-breakdown .row .val.negative { color: #f87171; }
+        .helper-text { padding: 15px; background-color: white; border-radius: 8px; font-size: 0.85rem; color: #666; line-height: 1.5; }
+        .helper-text strong { color: var(--blue); }
+        .footer { text-align: center; margin-top: 15px; font-size: 0.8rem; color: #999; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="chapter">Chapter 6</div>
+            <h1>Cash Flow Builder</h1>
+            <p>The Finance Framework</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="formula-box">
+                <div class="label">Free Cash Flow Formula</div>
+                <div class="formula">FCF = (Revenue − Costs − Depreciation) × (1 − T) + Depreciation − ΔNW − CapEx</div>
+            </div>
+            
+            <div class="section-title">
+                <span>Operating Items</span>
+                <span class="step">Step 1</span>
+            </div>
+            
+            <div class="form-group">
+                <label>Revenue</label>
+                <div class="input-wrapper">
+                    <span class="prefix">$</span>
+                    <input type="number" id="revenue" class="has-prefix" placeholder="e.g., 500000">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Operating Costs (excluding depreciation)</label>
+                <div class="input-wrapper">
+                    <span class="prefix">$</span>
+                    <input type="number" id="costs" class="has-prefix" placeholder="e.g., 300000">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Depreciation Expense</label>
+                <div class="input-wrapper">
+                    <span class="prefix">$</span>
+                    <input type="number" id="depreciation" class="has-prefix" placeholder="e.g., 50000">
+                </div>
+                <div class="hint">Non-cash expense that reduces taxes</div>
+            </div>
+            
+            <div class="section-title">
+                <span>Taxes</span>
+                <span class="step">Step 2</span>
+            </div>
+            
+            <div class="form-group">
+                <label>Tax Rate</label>
+                <div class="input-wrapper">
+                    <input type="number" id="taxRate" step="0.1" placeholder="e.g., 25" style="padding-right: 35px;">
+                    <span style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #666; font-weight: 500;">%</span>
+                </div>
+            </div>
+            
+            <div class="section-title">
+                <span>Investment Items</span>
+                <span class="step">Step 3</span>
+            </div>
+            
+            <div class="form-group">
+                <label>Change in Net Working Capital (ΔNW)</label>
+                <div class="input-wrapper">
+                    <span class="prefix">$</span>
+                    <input type="number" id="deltaNWC" class="has-prefix" placeholder="e.g., 10000">
+                </div>
+                <div class="hint">Positive = cash tied up; Negative = cash released</div>
+            </div>
+            
+            <div class="form-group">
+                <label>Capital Expenditures (CapEx)</label>
+                <div class="input-wrapper">
+                    <span class="prefix">$</span>
+                    <input type="number" id="capex" class="has-prefix" placeholder="e.g., 75000">
+                </div>
+                <div class="hint">New equipment, buildings, etc.</div>
+            </div>
+            
+            <div class="button-row">
+                <button class="btn btn-primary" onclick="calculate()">Calculate Free Cash Flow</button>
+                <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+            </div>
+            
+            <div class="error-box" id="error"></div>
+            
+            <div class="results-box" id="results">
+                <div class="result-main">
+                    <div class="label">Free Cash Flow (FCF)</div>
+                    <div class="value" id="fcf-value">$0</div>
+                </div>
+                <div class="result-breakdown">
+                    <div class="row"><span>Revenue</span><span class="val" id="r-revenue">$0</span></div>
+                    <div class="row"><span>− Operating Costs</span><span class="val negative" id="r-costs">($0)</span></div>
+                    <div class="row"><span>− Depreciation</span><span class="val negative" id="r-depr">($0)</span></div>
+                    <div class="row subtotal"><span>= EBIT (Operating Income)</span><span class="val" id="r-ebit">$0</span></div>
+                    <div class="row"><span>− Taxes</span><span class="val negative" id="r-taxes">($0)</span></div>
+                    <div class="row subtotal"><span>= Net Operating Profit After Tax</span><span class="val" id="r-nopat">$0</span></div>
+                    <div class="row"><span>+ Add Back Depreciation</span><span class="val" id="r-adddepr">$0</span></div>
+                    <div class="row"><span>− Change in NWC</span><span class="val negative" id="r-nwc">($0)</span></div>
+                    <div class="row"><span>− Capital Expenditures</span><span class="val negative" id="r-capex">($0)</span></div>
+                </div>
+            </div>
+            
+            <div class="helper-text">
+                <strong>Why add back depreciation?</strong> Depreciation is a non-cash expense. It reduces taxable income (saving taxes), but no cash actually leaves the firm.<br><br>
+                <strong>Key insight:</strong> Accounting income ≠ Cash flow. FCF measures actual cash available to investors.
+            </div>
+        </div>
+        
+        <div class="footer">
+            © The Finance Framework — Professor Gautam Kaul<br>
+            Ross School of Business, University of Michigan
+        </div>
+    </div>
+    
+    <script>
+        function calculate() {
+            const revenue = parseFloat(document.getElementById('revenue').value) || 0;
+            const costs = parseFloat(document.getElementById('costs').value) || 0;
+            const depreciation = parseFloat(document.getElementById('depreciation').value) || 0;
+            const taxRate = parseFloat(document.getElementById('taxRate').value) / 100 || 0;
+            const deltaNWC = parseFloat(document.getElementById('deltaNWC').value) || 0;
+            const capex = parseFloat(document.getElementById('capex').value) || 0;
+            
+            const errorBox = document.getElementById('error');
+            const resultsBox = document.getElementById('results');
+            
+            errorBox.style.display = 'none';
+            resultsBox.style.display = 'none';
+            
+            try {
+                if (revenue === 0 && costs === 0) throw new Error('Please enter at least revenue or costs');
+                
+                // Step 1: Calculate EBIT
+                const ebit = revenue - costs - depreciation;
+                
+                // Step 2: Calculate taxes and NOPAT
+                const taxes = Math.max(0, ebit * taxRate);
+                const nopat = ebit - taxes;
+                
+                // Step 3: Calculate FCF
+                const fcf = nopat + depreciation - deltaNWC - capex;
+                
+                // Display results
+                document.getElementById('fcf-value').textContent = formatCurrency(fcf);
+                document.getElementById('r-revenue').textContent = formatCurrency(revenue);
+                document.getElementById('r-costs').textContent = '(' + formatCurrency(costs) + ')';
+                document.getElementById('r-depr').textContent = '(' + formatCurrency(depreciation) + ')';
+                document.getElementById('r-ebit').textContent = formatCurrency(ebit);
+                document.getElementById('r-taxes').textContent = '(' + formatCurrency(taxes) + ')';
+                document.getElementById('r-nopat').textContent = formatCurrency(nopat);
+                document.getElementById('r-adddepr').textContent = formatCurrency(depreciation);
+                document.getElementById('r-nwc').textContent = '(' + formatCurrency(deltaNWC) + ')';
+                document.getElementById('r-capex').textContent = '(' + formatCurrency(capex) + ')';
+                
+                resultsBox.style.display = 'block';
+            } catch (err) {
+                errorBox.textContent = err.message;
+                errorBox.style.display = 'block';
+            }
+        }
+        
+        function formatCurrency(value) {
+            return '$' + Math.abs(value).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        }
+        
+        function clearAll() {
+            ['revenue', 'costs', 'depreciation', 'taxRate', 'deltaNWC', 'capex'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('results').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

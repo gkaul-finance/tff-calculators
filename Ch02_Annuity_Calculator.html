@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 2: Annuity & Perpetuity Calculator | The Finance Framework</title>
+    <style>
+        :root { --maize: #FFCB05; --blue: #00274C; --light-blue: #E6EEF4; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #fff; min-height: 100vh; padding: 20px; }
+        .container { max-width: 500px; margin: 0 auto; }
+        .header { background-color: var(--blue); color: white; padding: 20px; border-radius: 12px 12px 0 0; text-align: center; }
+        .header .chapter { font-size: 0.9rem; opacity: 0.9; margin-bottom: 5px; }
+        .header h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 8px; }
+        .header p { font-size: 0.85rem; opacity: 0.8; }
+        .main-content { background-color: var(--light-blue); padding: 20px; border-radius: 0 0 12px 12px; border: 2px solid var(--blue); border-top: none; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 6px; color: var(--blue); font-size: 0.9rem; }
+        .form-group.hidden { display: none; }
+        .input-wrapper { position: relative; }
+        .input-wrapper .prefix, .input-wrapper .suffix { position: absolute; top: 50%; transform: translateY(-50%); color: #666; font-weight: 500; }
+        .input-wrapper .prefix { left: 12px; }
+        .input-wrapper .suffix { right: 12px; }
+        input, select { width: 100%; padding: 12px; font-size: 1rem; border: 2px solid var(--maize); border-radius: 8px; background-color: white; }
+        input:focus, select:focus { outline: none; border-color: var(--blue); }
+        input.has-prefix { padding-left: 28px; }
+        input.has-suffix { padding-right: 35px; }
+        select { cursor: pointer; color: var(--blue); font-weight: 500; border-color: var(--blue); }
+        .formula-box { background-color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; border: 1px solid var(--maize); }
+        .formula-box .label { font-size: 0.85rem; color: #666; margin-bottom: 5px; }
+        .formula-box .formula { font-family: Georgia, serif; font-size: 1.1rem; color: var(--blue); font-weight: 500; }
+        .button-row { display: flex; gap: 10px; margin-bottom: 20px; }
+        .btn { padding: 14px; font-size: 1rem; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; }
+        .btn-primary { flex: 2; background-color: var(--maize); color: var(--blue); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,39,76,0.3); }
+        .btn-secondary { flex: 1; background-color: white; color: var(--blue); border: 2px solid var(--blue); }
+        .error-box { background-color: #fee2e2; color: #dc2626; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; text-align: center; display: none; }
+        .result-box { background-color: var(--blue); color: white; padding: 20px; border-radius: 8px; text-align: center; display: none; margin-bottom: 15px; }
+        .result-box .result-label { font-size: 0.9rem; opacity: 0.9; margin-bottom: 5px; }
+        .result-box .result-value { font-size: 2rem; font-weight: 700; color: var(--maize); }
+        .helper-text { padding: 15px; background-color: white; border-radius: 8px; font-size: 0.85rem; color: #666; line-height: 1.5; }
+        .helper-text strong { color: var(--blue); }
+        .footer { text-align: center; margin-top: 15px; font-size: 0.8rem; color: #999; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="chapter">Chapter 2</div>
+            <h1>Annuity & Perpetuity Calculator</h1>
+            <p>The Finance Framework</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="form-group">
+                <label>Calculate:</label>
+                <select id="calcMode" onchange="updateMode()">
+                    <option value="FV_Annuity">Future Value of Annuity</option>
+                    <option value="PV_Annuity">Present Value of Annuity</option>
+                    <option value="PMT_from_FV">Payment (given FV target)</option>
+                    <option value="PMT_from_PV">Payment (given PV/Loan)</option>
+                    <option value="Perpetuity">Perpetuity (PV)</option>
+                </select>
+            </div>
+            
+            <div class="formula-box">
+                <div class="label" id="formula-label">Future Value of Annuity</div>
+                <div class="formula" id="formula-display">FV = PMT × [(1+r)<sup>n</sup> − 1] / r</div>
+            </div>
+            
+            <div class="form-group" id="pmt-group">
+                <label>Payment (PMT)</label>
+                <div class="input-wrapper">
+                    <span class="prefix">$</span>
+                    <input type="number" id="pmt" class="has-prefix" placeholder="e.g., 1000">
+                </div>
+            </div>
+            
+            <div class="form-group hidden" id="fv-group">
+                <label>Future Value Target (FV)</label>
+                <div class="input-wrapper">
+                    <span class="prefix">$</span>
+                    <input type="number" id="fv" class="has-prefix" placeholder="e.g., 100000">
+                </div>
+            </div>
+            
+            <div class="form-group hidden" id="pv-group">
+                <label>Present Value / Loan Amount (PV)</label>
+                <div class="input-wrapper">
+                    <span class="prefix">$</span>
+                    <input type="number" id="pv" class="has-prefix" placeholder="e.g., 50000">
+                </div>
+            </div>
+            
+            <div class="form-group" id="rate-group">
+                <label>Interest Rate per Period (r)</label>
+                <div class="input-wrapper">
+                    <input type="number" id="rate" step="0.01" class="has-suffix" placeholder="e.g., 8">
+                    <span class="suffix">%</span>
+                </div>
+            </div>
+            
+            <div class="form-group" id="periods-group">
+                <label>Number of Periods (n)</label>
+                <input type="number" id="periods" step="1" placeholder="e.g., 10">
+            </div>
+            
+            <div class="button-row">
+                <button class="btn btn-primary" id="calc-btn" onclick="calculate()">Calculate FV</button>
+                <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+            </div>
+            
+            <div class="error-box" id="error"></div>
+            
+            <div class="result-box" id="result">
+                <div class="result-label" id="result-label">Future Value</div>
+                <div class="result-value" id="result-value">$0.00</div>
+            </div>
+            
+            <div class="helper-text" id="helper-text">
+                <strong>Future Value of Annuity:</strong> Calculate how much a series of equal payments will grow to over time with compound interest.
+            </div>
+        </div>
+        
+        <div class="footer">
+            © The Finance Framework — Professor Gautam Kaul<br>
+            Ross School of Business, University of Michigan
+        </div>
+    </div>
+    
+    <script>
+        const modes = {
+            'FV_Annuity': { formula: 'FV = PMT × [(1+r)<sup>n</sup> − 1] / r', label: 'Future Value of Annuity', inputs: ['pmt', 'rate', 'periods'], btnText: 'Calculate FV', helper: '<strong>Future Value of Annuity:</strong> Calculate how much a series of equal payments will grow to over time with compound interest.' },
+            'PV_Annuity': { formula: 'PV = PMT × [1 − (1+r)<sup>−n</sup>] / r', label: 'Present Value of Annuity', inputs: ['pmt', 'rate', 'periods'], btnText: 'Calculate PV', helper: '<strong>Present Value of Annuity:</strong> Calculate the current value of a series of future equal payments, discounted at the interest rate.' },
+            'PMT_from_FV': { formula: 'PMT = FV × r / [(1+r)<sup>n</sup> − 1]', label: 'Payment to Reach FV Target', inputs: ['fv', 'rate', 'periods'], btnText: 'Calculate PMT', helper: '<strong>Saving for a Goal:</strong> Calculate the periodic payment needed to reach a future value target (e.g., retirement savings).' },
+            'PMT_from_PV': { formula: 'PMT = PV × r / [1 − (1+r)<sup>−n</sup>]', label: 'Payment on a Loan', inputs: ['pv', 'rate', 'periods'], btnText: 'Calculate PMT', helper: '<strong>Loan Payment:</strong> Calculate the periodic payment required to pay off a loan over n periods.' },
+            'Perpetuity': { formula: 'PV = PMT / r', label: 'Present Value of Perpetuity', inputs: ['pmt', 'rate'], btnText: 'Calculate PV', helper: '<strong>Perpetuity:</strong> A stream of equal payments that continues forever. The present value is simply the payment divided by the rate.' }
+        };
+        
+        function updateMode() {
+            const mode = document.getElementById('calcMode').value;
+            const config = modes[mode];
+            document.getElementById('formula-label').textContent = config.label;
+            document.getElementById('formula-display').innerHTML = config.formula;
+            ['pmt', 'fv', 'pv', 'rate', 'periods'].forEach(id => {
+                const group = document.getElementById(id + '-group');
+                group.classList.toggle('hidden', !config.inputs.includes(id));
+            });
+            document.getElementById('calc-btn').textContent = config.btnText;
+            document.getElementById('helper-text').innerHTML = config.helper;
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+        }
+        
+        function calculate() {
+            const mode = document.getElementById('calcMode').value;
+            const pmt = parseFloat(document.getElementById('pmt').value);
+            const fv = parseFloat(document.getElementById('fv').value);
+            const pv = parseFloat(document.getElementById('pv').value);
+            const rate = parseFloat(document.getElementById('rate').value) / 100;
+            const periods = parseFloat(document.getElementById('periods').value);
+            
+            const errorBox = document.getElementById('error');
+            const resultBox = document.getElementById('result');
+            
+            errorBox.style.display = 'none';
+            resultBox.style.display = 'none';
+            
+            let result, label, formatted;
+            
+            try {
+                switch (mode) {
+                    case 'FV_Annuity':
+                        if (isNaN(pmt) || isNaN(rate) || isNaN(periods)) throw new Error('Please enter PMT, Rate, and Periods');
+                        result = rate === 0 ? pmt * periods : pmt * (Math.pow(1 + rate, periods) - 1) / rate;
+                        label = 'Future Value'; break;
+                    case 'PV_Annuity':
+                        if (isNaN(pmt) || isNaN(rate) || isNaN(periods)) throw new Error('Please enter PMT, Rate, and Periods');
+                        result = rate === 0 ? pmt * periods : pmt * (1 - Math.pow(1 + rate, -periods)) / rate;
+                        label = 'Present Value'; break;
+                    case 'PMT_from_FV':
+                        if (isNaN(fv) || isNaN(rate) || isNaN(periods)) throw new Error('Please enter FV Target, Rate, and Periods');
+                        result = rate === 0 ? fv / periods : fv * rate / (Math.pow(1 + rate, periods) - 1);
+                        label = 'Required Payment'; break;
+                    case 'PMT_from_PV':
+                        if (isNaN(pv) || isNaN(rate) || isNaN(periods)) throw new Error('Please enter PV/Loan, Rate, and Periods');
+                        result = rate === 0 ? pv / periods : pv * rate / (1 - Math.pow(1 + rate, -periods));
+                        label = 'Payment Amount'; break;
+                    case 'Perpetuity':
+                        if (isNaN(pmt) || isNaN(rate)) throw new Error('Please enter PMT and Rate');
+                        if (rate <= 0) throw new Error('Rate must be positive for perpetuity');
+                        result = pmt / rate;
+                        label = 'Present Value (Perpetuity)'; break;
+                }
+                formatted = '$' + result.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                document.getElementById('result-label').textContent = label;
+                document.getElementById('result-value').textContent = formatted;
+                resultBox.style.display = 'block';
+            } catch (err) {
+                errorBox.textContent = err.message;
+                errorBox.style.display = 'block';
+            }
+        }
+        
+        function clearAll() {
+            ['pmt', 'fv', 'pv', 'rate', 'periods'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('result').style.display = 'none';
+        }
+        
+        updateMode();
+    </script>
+</body>
+</html>

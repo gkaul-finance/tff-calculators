@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 4: Savings Goal Planner | The Finance Framework</title>
+    <style>
+        :root { --maize: #FFCB05; --blue: #00274C; --light-blue: #E6EEF4; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #fff; min-height: 100vh; padding: 20px; }
+        .container { max-width: 520px; margin: 0 auto; }
+        .header { background-color: var(--blue); color: white; padding: 20px; border-radius: 12px 12px 0 0; text-align: center; }
+        .header .chapter { font-size: 0.9rem; opacity: 0.9; margin-bottom: 5px; }
+        .header h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 8px; }
+        .header p { font-size: 0.85rem; opacity: 0.8; }
+        .main-content { background-color: var(--light-blue); padding: 20px; border-radius: 0 0 12px 12px; border: 2px solid var(--blue); border-top: none; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 6px; color: var(--blue); font-size: 0.9rem; }
+        .input-wrapper { position: relative; }
+        .input-wrapper .prefix, .input-wrapper .suffix { position: absolute; top: 50%; transform: translateY(-50%); color: #666; font-weight: 500; }
+        .input-wrapper .prefix { left: 12px; }
+        .input-wrapper .suffix { right: 12px; }
+        input, select { width: 100%; padding: 12px; font-size: 1rem; border: 2px solid var(--maize); border-radius: 8px; background-color: white; }
+        input:focus, select:focus { outline: none; border-color: var(--blue); }
+        input.has-prefix { padding-left: 28px; }
+        input.has-suffix { padding-right: 45px; }
+        select { cursor: pointer; color: var(--blue); font-weight: 500; border-color: var(--blue); }
+        .input-row { display: flex; gap: 15px; }
+        .input-row .form-group { flex: 1; }
+        .section-title { font-weight: 600; color: var(--blue); font-size: 0.95rem; margin: 20px 0 10px 0; padding-bottom: 5px; border-bottom: 2px solid var(--maize); }
+        .button-row { display: flex; gap: 10px; margin: 20px 0; }
+        .btn { padding: 14px; font-size: 1rem; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; }
+        .btn-primary { flex: 2; background-color: var(--maize); color: var(--blue); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,39,76,0.3); }
+        .btn-secondary { flex: 1; background-color: white; color: var(--blue); border: 2px solid var(--blue); }
+        .error-box { background-color: #fee2e2; color: #dc2626; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; text-align: center; display: none; }
+        .results-box { background-color: var(--blue); color: white; padding: 20px; border-radius: 8px; display: none; margin-bottom: 15px; }
+        .result-main { text-align: center; margin-bottom: 15px; }
+        .result-main .label { font-size: 0.9rem; opacity: 0.9; margin-bottom: 5px; }
+        .result-main .value { font-size: 2rem; font-weight: 700; color: var(--maize); }
+        .result-details { background-color: rgba(255,255,255,0.1); padding: 12px; border-radius: 6px; font-size: 0.85rem; }
+        .result-details .row { display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .result-details .row:last-child { margin-bottom: 0; }
+        .result-details .row .val { color: var(--maize); font-weight: 600; }
+        .timeline { margin-top: 15px; padding: 15px; background-color: white; border-radius: 8px; display: none; }
+        .timeline h4 { color: var(--blue); font-size: 0.9rem; margin-bottom: 10px; }
+        .timeline-bar { height: 30px; background-color: var(--light-blue); border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 10px; }
+        .timeline-save { background-color: #16a34a; height: 100%; position: absolute; left: 0; }
+        .timeline-withdraw { background-color: #dc2626; height: 100%; position: absolute; }
+        .timeline-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: #666; }
+        .helper-text { padding: 15px; background-color: white; border-radius: 8px; font-size: 0.85rem; color: #666; line-height: 1.5; }
+        .helper-text strong { color: var(--blue); }
+        .footer { text-align: center; margin-top: 15px; font-size: 0.8rem; color: #999; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="chapter">Chapter 4</div>
+            <h1>Savings Goal Planner</h1>
+            <p>The Finance Framework</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="form-group">
+                <label>Goal Type</label>
+                <select id="goalType" onchange="updateGoalType()">
+                    <option value="college">College Savings</option>
+                    <option value="retirement">Retirement Planning</option>
+                    <option value="custom">Custom Goal</option>
+                </select>
+            </div>
+            
+            <div class="section-title">Saving Phase</div>
+            
+            <div class="form-group">
+                <label id="goal-label">Total College Cost Needed</label>
+                <div class="input-wrapper">
+                    <span class="prefix">$</span>
+                    <input type="number" id="goalAmount" class="has-prefix" placeholder="e.g., 200000">
+                </div>
+            </div>
+            
+            <div class="input-row">
+                <div class="form-group">
+                    <label>Years Until Goal</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="yearsToGoal" class="has-suffix" placeholder="e.g., 18">
+                        <span class="suffix">yrs</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Annual Return (Saving)</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="saveRate" step="0.1" class="has-suffix" placeholder="e.g., 7">
+                        <span class="suffix">%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Current Savings (Optional)</label>
+                <div class="input-wrapper">
+                    <span class="prefix">$</span>
+                    <input type="number" id="currentSavings" class="has-prefix" placeholder="e.g., 10000" value="0">
+                </div>
+            </div>
+            
+            <div class="section-title" id="withdraw-section-title">Withdrawal Phase (Retirement Only)</div>
+            
+            <div id="withdrawal-inputs">
+                <div class="input-row">
+                    <div class="form-group">
+                        <label>Years of Withdrawal</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="withdrawYears" class="has-suffix" placeholder="e.g., 25">
+                            <span class="suffix">yrs</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Return During Withdrawal</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="withdrawRate" step="0.1" class="has-suffix" placeholder="e.g., 5">
+                            <span class="suffix">%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Annual Withdrawal Amount Needed</label>
+                    <div class="input-wrapper">
+                        <span class="prefix">$</span>
+                        <input type="number" id="annualWithdraw" class="has-prefix" placeholder="e.g., 60000">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="button-row">
+                <button class="btn btn-primary" onclick="calculate()">Calculate Savings Plan</button>
+                <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+            </div>
+            
+            <div class="error-box" id="error"></div>
+            
+            <div class="results-box" id="results">
+                <div class="result-main">
+                    <div class="label" id="result-label">Required Annual Savings</div>
+                    <div class="value" id="result-value">$0</div>
+                </div>
+                <div class="result-details">
+                    <div class="row"><span>Target Amount at Goal:</span><span class="val" id="detail-target">$0</span></div>
+                    <div class="row"><span>Growth on Current Savings:</span><span class="val" id="detail-growth">$0</span></div>
+                    <div class="row"><span>Total You'll Contribute:</span><span class="val" id="detail-contributions">$0</span></div>
+                    <div class="row"><span>Total Investment Earnings:</span><span class="val" id="detail-earnings">$0</span></div>
+                </div>
+            </div>
+            
+            <div class="timeline" id="timeline">
+                <h4>Your Financial Journey</h4>
+                <div class="timeline-bar">
+                    <div class="timeline-save" id="timeline-save"></div>
+                    <div class="timeline-withdraw" id="timeline-withdraw"></div>
+                </div>
+                <div class="timeline-labels">
+                    <span>Today</span>
+                    <span id="timeline-goal">Goal</span>
+                    <span id="timeline-end" style="display:none;">End</span>
+                </div>
+            </div>
+            
+            <div class="helper-text">
+                <strong>College Savings:</strong> Calculate how much to save annually to fund education costs.<br><br>
+                <strong>Retirement:</strong> A two-phase problem — save now, then withdraw later. The calculator finds how much to save each year to fund your retirement withdrawals.
+            </div>
+        </div>
+        
+        <div class="footer">
+            © The Finance Framework — Professor Gautam Kaul<br>
+            Ross School of Business, University of Michigan
+        </div>
+    </div>
+    
+    <script>
+        function updateGoalType() {
+            const goalType = document.getElementById('goalType').value;
+            const withdrawSection = document.getElementById('withdraw-section-title');
+            const withdrawInputs = document.getElementById('withdrawal-inputs');
+            const goalLabel = document.getElementById('goal-label');
+            
+            if (goalType === 'retirement') {
+                withdrawSection.style.display = 'block';
+                withdrawInputs.style.display = 'block';
+                goalLabel.textContent = 'Target Nest Egg (or leave blank to calculate)';
+                document.getElementById('goalAmount').placeholder = 'Auto-calculated if blank';
+            } else {
+                withdrawSection.style.display = 'none';
+                withdrawInputs.style.display = 'none';
+                goalLabel.textContent = goalType === 'college' ? 'Total College Cost Needed' : 'Goal Amount';
+                document.getElementById('goalAmount').placeholder = 'e.g., 200000';
+            }
+            
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('timeline').style.display = 'none';
+        }
+        
+        function calculate() {
+            const goalType = document.getElementById('goalType').value;
+            let goalAmount = parseFloat(document.getElementById('goalAmount').value);
+            const yearsToGoal = parseFloat(document.getElementById('yearsToGoal').value);
+            const saveRate = parseFloat(document.getElementById('saveRate').value) / 100;
+            const currentSavings = parseFloat(document.getElementById('currentSavings').value) || 0;
+            
+            const errorBox = document.getElementById('error');
+            const resultsBox = document.getElementById('results');
+            const timeline = document.getElementById('timeline');
+            
+            errorBox.style.display = 'none';
+            resultsBox.style.display = 'none';
+            timeline.style.display = 'none';
+            
+            try {
+                if (isNaN(yearsToGoal) || yearsToGoal <= 0) throw new Error('Please enter years until goal');
+                if (isNaN(saveRate)) throw new Error('Please enter a savings rate');
+                
+                let targetAmount, withdrawYears = 0;
+                
+                if (goalType === 'retirement') {
+                    const withdrawRate = parseFloat(document.getElementById('withdrawRate').value) / 100;
+                    withdrawYears = parseFloat(document.getElementById('withdrawYears').value);
+                    const annualWithdraw = parseFloat(document.getElementById('annualWithdraw').value);
+                    
+                    if (isNaN(withdrawYears) || withdrawYears <= 0) throw new Error('Please enter withdrawal years');
+                    if (isNaN(annualWithdraw) || annualWithdraw <= 0) throw new Error('Please enter annual withdrawal amount');
+                    if (isNaN(withdrawRate)) throw new Error('Please enter withdrawal phase return rate');
+                    
+                    // Calculate required nest egg at retirement (PV of annuity during withdrawal)
+                    if (withdrawRate === 0) {
+                        targetAmount = annualWithdraw * withdrawYears;
+                    } else {
+                        targetAmount = annualWithdraw * (1 - Math.pow(1 + withdrawRate, -withdrawYears)) / withdrawRate;
+                    }
+                    
+                    // Override if user specified goal amount
+                    if (!isNaN(goalAmount) && goalAmount > 0) {
+                        targetAmount = goalAmount;
+                    }
+                } else {
+                    if (isNaN(goalAmount) || goalAmount <= 0) throw new Error('Please enter a goal amount');
+                    targetAmount = goalAmount;
+                }
+                
+                // Calculate FV of current savings
+                const fvCurrentSavings = currentSavings * Math.pow(1 + saveRate, yearsToGoal);
+                
+                // Amount still needed from new savings
+                const amountNeeded = targetAmount - fvCurrentSavings;
+                
+                if (amountNeeded < 0) {
+                    throw new Error('Your current savings will exceed your goal! No additional savings needed.');
+                }
+                
+                // Calculate required annual payment (PMT for FV of annuity)
+                let annualSavings;
+                if (saveRate === 0) {
+                    annualSavings = amountNeeded / yearsToGoal;
+                } else {
+                    annualSavings = amountNeeded * saveRate / (Math.pow(1 + saveRate, yearsToGoal) - 1);
+                }
+                
+                const totalContributions = annualSavings * yearsToGoal + currentSavings;
+                const totalEarnings = targetAmount - totalContributions;
+                
+                // Display results
+                document.getElementById('result-label').textContent = 'Required Annual Savings';
+                document.getElementById('result-value').textContent = formatCurrency(annualSavings);
+                document.getElementById('detail-target').textContent = formatCurrency(targetAmount);
+                document.getElementById('detail-growth').textContent = formatCurrency(fvCurrentSavings - currentSavings);
+                document.getElementById('detail-contributions').textContent = formatCurrency(totalContributions);
+                document.getElementById('detail-earnings').textContent = formatCurrency(totalEarnings);
+                
+                resultsBox.style.display = 'block';
+                
+                // Timeline visualization
+                const totalYears = yearsToGoal + withdrawYears;
+                const saveWidth = (yearsToGoal / totalYears) * 100;
+                const withdrawWidth = (withdrawYears / totalYears) * 100;
+                
+                document.getElementById('timeline-save').style.width = saveWidth + '%';
+                document.getElementById('timeline-withdraw').style.width = withdrawWidth + '%';
+                document.getElementById('timeline-withdraw').style.left = saveWidth + '%';
+                document.getElementById('timeline-goal').textContent = goalType === 'retirement' ? 'Retirement' : 'Goal';
+                document.getElementById('timeline-end').style.display = withdrawYears > 0 ? 'inline' : 'none';
+                
+                timeline.style.display = 'block';
+                
+            } catch (err) {
+                errorBox.textContent = err.message;
+                errorBox.style.display = 'block';
+            }
+        }
+        
+        function formatCurrency(value) {
+            return '$' + value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        }
+        
+        function clearAll() {
+            ['goalAmount', 'yearsToGoal', 'saveRate', 'withdrawYears', 'withdrawRate', 'annualWithdraw'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            document.getElementById('currentSavings').value = '0';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('timeline').style.display = 'none';
+        }
+        
+        updateGoalType();
+    </script>
+</body>
+</html>

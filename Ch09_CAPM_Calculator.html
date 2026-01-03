@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 9: CAPM & Cost of Equity | The Finance Framework</title>
+    <style>
+        :root { --maize: #FFCB05; --blue: #00274C; --light-blue: #E6EEF4; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #fff; min-height: 100vh; padding: 20px; }
+        .container { max-width: 500px; margin: 0 auto; }
+        .header { background-color: var(--blue); color: white; padding: 20px; border-radius: 12px 12px 0 0; text-align: center; }
+        .header .chapter { font-size: 0.9rem; opacity: 0.9; margin-bottom: 5px; }
+        .header h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 8px; }
+        .header p { font-size: 0.85rem; opacity: 0.8; }
+        .main-content { background-color: var(--light-blue); padding: 20px; border-radius: 0 0 12px 12px; border: 2px solid var(--blue); border-top: none; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 6px; color: var(--blue); font-size: 0.9rem; }
+        .form-group.disabled { opacity: 0.5; }
+        .input-wrapper { position: relative; }
+        .input-wrapper .suffix { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #666; font-weight: 500; }
+        input, select { width: 100%; padding: 12px; font-size: 1rem; border: 2px solid var(--maize); border-radius: 8px; background-color: white; }
+        input:focus, select:focus { outline: none; border-color: var(--blue); }
+        input:disabled { background-color: #f5f5f5; border-color: #ddd; }
+        input.has-suffix { padding-right: 35px; }
+        select { cursor: pointer; color: var(--blue); font-weight: 500; border-color: var(--blue); }
+        .formula-box { background-color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; border: 1px solid var(--maize); }
+        .formula-box .label { font-size: 0.85rem; color: #666; margin-bottom: 5px; }
+        .formula-box .formula { font-family: Georgia, serif; font-size: 1.2rem; color: var(--blue); font-weight: 500; }
+        .formula-box .desc { font-size: 0.8rem; color: #888; margin-top: 8px; }
+        .beta-presets { margin-top: 8px; }
+        .beta-presets .label { font-size: 0.75rem; color: #666; margin-bottom: 6px; }
+        .beta-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+        .beta-btn { padding: 6px 10px; font-size: 0.75rem; border: 1px solid #ccc; border-radius: 4px; background-color: white; color: var(--blue); cursor: pointer; font-weight: 500; }
+        .beta-btn:hover { border-color: var(--blue); }
+        .beta-btn.active { background-color: var(--blue); color: white; border-color: var(--blue); }
+        .button-row { display: flex; gap: 10px; margin: 20px 0; }
+        .btn { padding: 14px; font-size: 1rem; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; }
+        .btn-primary { flex: 2; background-color: var(--maize); color: var(--blue); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,39,76,0.3); }
+        .btn-secondary { flex: 1; background-color: white; color: var(--blue); border: 2px solid var(--blue); }
+        .error-box { background-color: #fee2e2; color: #dc2626; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; text-align: center; display: none; }
+        .results-box { background-color: var(--blue); color: white; padding: 20px; border-radius: 8px; display: none; margin-bottom: 15px; }
+        .result-main { text-align: center; margin-bottom: 15px; }
+        .result-main .label { font-size: 0.9rem; opacity: 0.9; margin-bottom: 5px; }
+        .result-main .value { font-size: 2.2rem; font-weight: 700; color: var(--maize); }
+        .result-details { background-color: rgba(255,255,255,0.1); padding: 12px; border-radius: 6px; font-size: 0.85rem; }
+        .result-details .row { display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .result-details .row:last-child { margin-bottom: 0; }
+        .result-details .row .val { color: var(--maize); font-weight: 600; }
+        .risk-badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-weight: 600; margin-top: 10px; }
+        .risk-badge.aggressive { background-color: #dc2626; }
+        .risk-badge.moderate { background-color: #f59e0b; color: #000; }
+        .risk-badge.conservative { background-color: #16a34a; }
+        .risk-badge.defensive { background-color: #3b82f6; }
+        .helper-text { padding: 15px; background-color: white; border-radius: 8px; font-size: 0.85rem; color: #666; line-height: 1.5; }
+        .helper-text strong { color: var(--blue); }
+        .footer { text-align: center; margin-top: 15px; font-size: 0.8rem; color: #999; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="chapter">Chapter 9</div>
+            <h1>CAPM & Cost of Equity</h1>
+            <p>The Finance Framework</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="form-group">
+                <label>Solve For:</label>
+                <select id="solveFor" onchange="updateMode()">
+                    <option value="ExpectedReturn">Expected Return / Cost of Equity</option>
+                    <option value="Beta">Beta (β)</option>
+                    <option value="MarketReturn">Market Return E(Rm)</option>
+                    <option value="RiskFreeRate">Risk-Free Rate (Rf)</option>
+                </select>
+            </div>
+            
+            <div class="formula-box">
+                <div class="label">Capital Asset Pricing Model</div>
+                <div class="formula">E(R) = Rf + β × [E(Rm) − Rf]</div>
+                <div class="desc">Expected Return = Risk-Free Rate + Beta × Market Risk Premium</div>
+            </div>
+            
+            <div class="form-group disabled" id="er-group">
+                <label id="er-label">Expected Return — Solving</label>
+                <div class="input-wrapper">
+                    <input type="number" id="expectedReturn" step="0.01" class="has-suffix" placeholder="e.g., 12" disabled>
+                    <span class="suffix">%</span>
+                </div>
+            </div>
+            
+            <div class="form-group" id="rf-group">
+                <label id="rf-label">Risk-Free Rate (Rf)</label>
+                <div class="input-wrapper">
+                    <input type="number" id="riskFreeRate" step="0.01" class="has-suffix" placeholder="e.g., 3">
+                    <span class="suffix">%</span>
+                </div>
+            </div>
+            
+            <div class="form-group" id="beta-group">
+                <label id="beta-label">Beta (β)</label>
+                <input type="number" id="beta" step="0.01" placeholder="e.g., 1.2">
+                <div class="beta-presets">
+                    <div class="label">Quick select typical betas:</div>
+                    <div class="beta-buttons">
+                        <button class="beta-btn" onclick="setBeta(0.4)">Utilities 0.4</button>
+                        <button class="beta-btn" onclick="setBeta(0.7)">Consumer 0.7</button>
+                        <button class="beta-btn" onclick="setBeta(1.0)">Market 1.0</button>
+                        <button class="beta-btn" onclick="setBeta(1.3)">Tech 1.3</button>
+                        <button class="beta-btn" onclick="setBeta(1.6)">Small Cap 1.6</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group" id="rm-group">
+                <label id="rm-label">Expected Market Return E(Rm)</label>
+                <div class="input-wrapper">
+                    <input type="number" id="marketReturn" step="0.01" class="has-suffix" placeholder="e.g., 10">
+                    <span class="suffix">%</span>
+                </div>
+            </div>
+            
+            <div class="button-row">
+                <button class="btn btn-primary" id="calc-btn" onclick="calculate()">Calculate E(R)</button>
+                <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+            </div>
+            
+            <div class="error-box" id="error"></div>
+            
+            <div class="results-box" id="results">
+                <div class="result-main">
+                    <div class="label" id="result-label">Cost of Equity</div>
+                    <div class="value" id="result-value">0%</div>
+                </div>
+                <div class="result-details">
+                    <div class="row"><span>Risk-Free Rate:</span><span class="val" id="d-rf">0%</span></div>
+                    <div class="row"><span>Market Risk Premium:</span><span class="val" id="d-mrp">0%</span></div>
+                    <div class="row"><span>Beta:</span><span class="val" id="d-beta">0</span></div>
+                    <div class="row"><span>Risk Premium (β × MRP):</span><span class="val" id="d-rp">0%</span></div>
+                </div>
+                <div style="text-align: center; margin-top: 12px;">
+                    <div style="font-size: 0.8rem; opacity: 0.9;">Risk Profile:</div>
+                    <span class="risk-badge" id="risk-badge">Moderate</span>
+                </div>
+            </div>
+            
+            <div class="helper-text">
+                <strong>Beta Interpretation:</strong><br>
+                β = 1.0: Same risk as market<br>
+                β > 1.0: More volatile than market (aggressive)<br>
+                β < 1.0: Less volatile than market (defensive)<br><br>
+                <strong>Cost of Equity:</strong> This is the return shareholders require given the stock's systematic risk.
+            </div>
+        </div>
+        
+        <div class="footer">
+            © The Finance Framework — Professor Gautam Kaul<br>
+            Ross School of Business, University of Michigan
+        </div>
+    </div>
+    
+    <script>
+        function updateMode() {
+            const solveFor = document.getElementById('solveFor').value;
+            const configs = {
+                'ExpectedReturn': { disabled: 'er', btn: 'Calculate E(R)' },
+                'Beta': { disabled: 'beta', btn: 'Calculate Beta' },
+                'MarketReturn': { disabled: 'rm', btn: 'Calculate E(Rm)' },
+                'RiskFreeRate': { disabled: 'rf', btn: 'Calculate Rf' }
+            };
+            
+            const labels = { er: 'Expected Return', rf: 'Risk-Free Rate (Rf)', beta: 'Beta (β)', rm: 'Expected Market Return E(Rm)' };
+            const inputs = { er: 'expectedReturn', rf: 'riskFreeRate', beta: 'beta', rm: 'marketReturn' };
+            
+            ['er', 'rf', 'beta', 'rm'].forEach(key => {
+                const group = document.getElementById(key + '-group');
+                const input = document.getElementById(inputs[key]);
+                const label = document.getElementById(key + '-label');
+                
+                if (key === configs[solveFor].disabled) {
+                    group.classList.add('disabled');
+                    input.disabled = true;
+                    label.textContent = labels[key] + ' — Solving';
+                } else {
+                    group.classList.remove('disabled');
+                    input.disabled = false;
+                    label.textContent = labels[key];
+                }
+            });
+            
+            document.getElementById('calc-btn').textContent = configs[solveFor].btn;
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('results').style.display = 'none';
+        }
+        
+        function setBeta(value) {
+            document.getElementById('beta').value = value;
+            document.querySelectorAll('.beta-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.includes(value.toString()));
+            });
+        }
+        
+        function calculate() {
+            const solveFor = document.getElementById('solveFor').value;
+            const er = parseFloat(document.getElementById('expectedReturn').value) / 100;
+            const rf = parseFloat(document.getElementById('riskFreeRate').value) / 100;
+            const b = parseFloat(document.getElementById('beta').value);
+            const rm = parseFloat(document.getElementById('marketReturn').value) / 100;
+            
+            const errorBox = document.getElementById('error');
+            const resultsBox = document.getElementById('results');
+            
+            errorBox.style.display = 'none';
+            resultsBox.style.display = 'none';
+            
+            try {
+                let result, resultLabel, rfVal, rmVal, betaVal, erVal;
+                
+                switch (solveFor) {
+                    case 'ExpectedReturn':
+                        if (isNaN(rf) || isNaN(b) || isNaN(rm)) throw new Error('Please enter Rf, Beta, and E(Rm)');
+                        rfVal = rf; rmVal = rm; betaVal = b;
+                        erVal = rfVal + betaVal * (rmVal - rfVal);
+                        result = (erVal * 100).toFixed(2) + '%';
+                        resultLabel = 'Cost of Equity / Expected Return';
+                        break;
+                    case 'Beta':
+                        if (isNaN(rf) || isNaN(er) || isNaN(rm)) throw new Error('Please enter Rf, E(R), and E(Rm)');
+                        if (rm === rf) throw new Error('Market return cannot equal risk-free rate');
+                        rfVal = rf; rmVal = rm; erVal = er;
+                        betaVal = (erVal - rfVal) / (rmVal - rfVal);
+                        result = betaVal.toFixed(4);
+                        resultLabel = 'Beta (β)';
+                        break;
+                    case 'MarketReturn':
+                        if (isNaN(rf) || isNaN(b) || isNaN(er)) throw new Error('Please enter Rf, Beta, and E(R)');
+                        if (b === 0) throw new Error('Beta cannot be zero');
+                        rfVal = rf; betaVal = b; erVal = er;
+                        rmVal = rfVal + (erVal - rfVal) / betaVal;
+                        result = (rmVal * 100).toFixed(2) + '%';
+                        resultLabel = 'Expected Market Return';
+                        break;
+                    case 'RiskFreeRate':
+                        if (isNaN(rm) || isNaN(b) || isNaN(er)) throw new Error('Please enter E(R), Beta, and E(Rm)');
+                        if (b === 1) throw new Error('Beta cannot be 1 when solving for Rf');
+                        rmVal = rm; betaVal = b; erVal = er;
+                        rfVal = (erVal - betaVal * rmVal) / (1 - betaVal);
+                        result = (rfVal * 100).toFixed(2) + '%';
+                        resultLabel = 'Risk-Free Rate';
+                        break;
+                }
+                
+                const mrp = rmVal - rfVal;
+                const riskPremium = betaVal * mrp;
+                
+                document.getElementById('result-label').textContent = resultLabel;
+                document.getElementById('result-value').textContent = result;
+                document.getElementById('d-rf').textContent = (rfVal * 100).toFixed(2) + '%';
+                document.getElementById('d-mrp').textContent = (mrp * 100).toFixed(2) + '%';
+                document.getElementById('d-beta').textContent = betaVal.toFixed(2);
+                document.getElementById('d-rp').textContent = (riskPremium * 100).toFixed(2) + '%';
+                
+                const badge = document.getElementById('risk-badge');
+                if (betaVal >= 1.3) { badge.textContent = 'Aggressive (β ≥ 1.3)'; badge.className = 'risk-badge aggressive'; }
+                else if (betaVal >= 0.9) { badge.textContent = 'Moderate (0.9 ≤ β < 1.3)'; badge.className = 'risk-badge moderate'; }
+                else if (betaVal >= 0.5) { badge.textContent = 'Conservative (0.5 ≤ β < 0.9)'; badge.className = 'risk-badge conservative'; }
+                else { badge.textContent = 'Defensive (β < 0.5)'; badge.className = 'risk-badge defensive'; }
+                
+                resultsBox.style.display = 'block';
+            } catch (err) {
+                errorBox.textContent = err.message;
+                errorBox.style.display = 'block';
+            }
+        }
+        
+        function clearAll() {
+            ['expectedReturn', 'riskFreeRate', 'beta', 'marketReturn'].forEach(id => document.getElementById(id).value = '');
+            document.querySelectorAll('.beta-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('results').style.display = 'none';
+        }
+        
+        updateMode();
+    </script>
+</body>
+</html>

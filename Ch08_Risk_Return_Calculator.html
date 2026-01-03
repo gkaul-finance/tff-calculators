@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 8: Risk & Return Calculator | The Finance Framework</title>
+    <style>
+        :root { --maize: #FFCB05; --blue: #00274C; --light-blue: #E6EEF4; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #fff; min-height: 100vh; padding: 20px; }
+        .container { max-width: 550px; margin: 0 auto; }
+        .header { background-color: var(--blue); color: white; padding: 20px; border-radius: 12px 12px 0 0; text-align: center; }
+        .header .chapter { font-size: 0.9rem; opacity: 0.9; margin-bottom: 5px; }
+        .header h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 8px; }
+        .header p { font-size: 0.85rem; opacity: 0.8; }
+        .main-content { background-color: var(--light-blue); padding: 20px; border-radius: 0 0 12px 12px; border: 2px solid var(--blue); border-top: none; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 6px; color: var(--blue); font-size: 0.9rem; }
+        select { width: 100%; padding: 12px; font-size: 1rem; border: 2px solid var(--blue); border-radius: 8px; background-color: white; cursor: pointer; color: var(--blue); font-weight: 500; }
+        .returns-section { background-color: white; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+        .returns-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .returns-header h3 { color: var(--blue); font-size: 0.95rem; }
+        .returns-header button { background-color: var(--maize); color: var(--blue); border: none; padding: 6px 12px; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
+        .return-row { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+        .return-row .period { width: 70px; font-weight: 600; color: var(--blue); font-size: 0.85rem; }
+        .return-row input { flex: 1; padding: 10px; font-size: 1rem; border: 2px solid #ddd; border-radius: 6px; text-align: right; }
+        .return-row input:focus { outline: none; border-color: var(--blue); }
+        .return-row input.positive { border-color: #16a34a; background-color: #f0fdf4; }
+        .return-row input.negative { border-color: #dc2626; background-color: #fef2f2; }
+        .return-row .suffix { color: #666; font-weight: 500; margin-left: -30px; pointer-events: none; }
+        .return-row .remove-btn { background-color: #fee2e2; color: #dc2626; border: none; width: 28px; height: 28px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .return-row .remove-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .quick-input { margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee; }
+        .quick-input label { font-size: 0.8rem; color: #666; margin-bottom: 5px; display: block; }
+        .quick-input textarea { width: 100%; padding: 8px; font-size: 0.85rem; border: 1px solid #ddd; border-radius: 4px; height: 60px; font-family: monospace; }
+        .quick-input button { margin-top: 5px; background-color: var(--light-blue); color: var(--blue); border: 1px solid var(--blue); padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; cursor: pointer; }
+        .button-row { display: flex; gap: 10px; margin: 20px 0; }
+        .btn { padding: 14px; font-size: 1rem; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; }
+        .btn-primary { flex: 2; background-color: var(--maize); color: var(--blue); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,39,76,0.3); }
+        .btn-secondary { flex: 1; background-color: white; color: var(--blue); border: 2px solid var(--blue); }
+        .error-box { background-color: #fee2e2; color: #dc2626; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; text-align: center; display: none; }
+        .results-box { background-color: var(--blue); color: white; padding: 20px; border-radius: 8px; display: none; margin-bottom: 15px; }
+        .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .result-item { text-align: center; padding: 10px; background-color: rgba(255,255,255,0.1); border-radius: 6px; }
+        .result-item .label { font-size: 0.8rem; opacity: 0.9; margin-bottom: 4px; }
+        .result-item .value { font-size: 1.4rem; font-weight: 700; color: var(--maize); }
+        .result-item .sub { font-size: 0.7rem; opacity: 0.7; margin-top: 2px; }
+        .result-item.full-width { grid-column: 1 / -1; }
+        .interpretation { margin-top: 15px; padding: 12px; background-color: rgba(255,255,255,0.1); border-radius: 6px; font-size: 0.85rem; }
+        .interpretation strong { color: var(--maize); }
+        .helper-text { padding: 15px; background-color: white; border-radius: 8px; font-size: 0.85rem; color: #666; line-height: 1.5; }
+        .helper-text strong { color: var(--blue); }
+        .footer { text-align: center; margin-top: 15px; font-size: 0.8rem; color: #999; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="chapter">Chapter 8</div>
+            <h1>Risk & Return Calculator</h1>
+            <p>The Finance Framework</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="form-group">
+                <label>Variance Type:</label>
+                <select id="varianceType">
+                    <option value="sample">Sample Variance (n-1) — for historical data</option>
+                    <option value="population">Population Variance (n) — for complete data</option>
+                </select>
+            </div>
+            
+            <div class="returns-section">
+                <div class="returns-header">
+                    <h3>Returns Data (%)</h3>
+                    <button onclick="addReturn()">+ Add Period</button>
+                </div>
+                <div id="returns-container"></div>
+                
+                <div class="quick-input">
+                    <label>Quick paste (comma or space separated):</label>
+                    <textarea id="quickInput" placeholder="e.g., 12, -5, 8, 15, -3, 10"></textarea>
+                    <button onclick="parseQuickInput()">Parse & Load</button>
+                </div>
+            </div>
+            
+            <div class="button-row">
+                <button class="btn btn-primary" onclick="calculate()">Calculate Statistics</button>
+                <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+            </div>
+            
+            <div class="error-box" id="error"></div>
+            
+            <div class="results-box" id="results">
+                <div class="results-grid">
+                    <div class="result-item">
+                        <div class="label">Mean Return</div>
+                        <div class="value" id="r-mean">0%</div>
+                        <div class="sub">Average</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="label">Standard Deviation</div>
+                        <div class="value" id="r-std">0%</div>
+                        <div class="sub">Risk measure</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="label">Variance</div>
+                        <div class="value" id="r-var">0</div>
+                        <div class="sub">σ² (in %²)</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="label">Observations</div>
+                        <div class="value" id="r-n">0</div>
+                        <div class="sub">Count</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="label">Range</div>
+                        <div class="value" id="r-range">0%</div>
+                        <div class="sub">Max − Min</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="label">Sum of Returns</div>
+                        <div class="value" id="r-sum">0%</div>
+                        <div class="sub">Total</div>
+                    </div>
+                </div>
+                <div class="interpretation" id="interpretation"></div>
+            </div>
+            
+            <div class="helper-text">
+                <strong>Mean:</strong> The average return — your expected return.<br>
+                <strong>Standard Deviation:</strong> Measures volatility/risk — higher = riskier.<br>
+                <strong>Sample vs Population:</strong> Use sample (n-1) for historical data, population (n) when you have all possible observations.
+            </div>
+        </div>
+        
+        <div class="footer">
+            © The Finance Framework — Professor Gautam Kaul<br>
+            Ross School of Business, University of Michigan
+        </div>
+    </div>
+    
+    <script>
+        let periodCount = 0;
+        
+        function initializeReturns() {
+            const container = document.getElementById('returns-container');
+            container.innerHTML = '';
+            periodCount = 0;
+            for (let i = 0; i < 5; i++) addReturn();
+        }
+        
+        function styleReturn(input) {
+            const value = parseFloat(input.value);
+            input.classList.remove('positive', 'negative');
+            if (!isNaN(value)) {
+                if (value > 0) input.classList.add('positive');
+                else if (value < 0) input.classList.add('negative');
+            }
+        }
+        
+        function addReturn() {
+            const container = document.getElementById('returns-container');
+            const row = document.createElement('div');
+            row.className = 'return-row';
+            row.innerHTML = `
+                <span class="period">Year ${periodCount + 1}</span>
+                <input type="number" step="0.01" placeholder="e.g., ${periodCount === 0 ? '12' : periodCount === 1 ? '-5' : '8'}" onchange="styleReturn(this)">
+                <span class="suffix">%</span>
+                <button class="remove-btn" onclick="removeReturn(this)" ${periodCount < 2 ? 'disabled' : ''}>×</button>
+            `;
+            container.appendChild(row);
+            periodCount++;
+        }
+        
+        function removeReturn(btn) {
+            const rows = document.querySelectorAll('.return-row');
+            if (rows.length <= 2) return;
+            btn.parentElement.remove();
+            renumberReturns();
+        }
+        
+        function renumberReturns() {
+            const rows = document.querySelectorAll('.return-row');
+            rows.forEach((row, i) => {
+                row.querySelector('.period').textContent = 'Year ' + (i + 1);
+                row.querySelector('.remove-btn').disabled = rows.length <= 2;
+            });
+            periodCount = rows.length;
+        }
+        
+        function parseQuickInput() {
+            const input = document.getElementById('quickInput').value;
+            const values = input.split(/[,\s]+/).filter(v => v.trim() !== '').map(v => parseFloat(v.trim()));
+            
+            if (values.length < 2 || values.some(isNaN)) {
+                alert('Please enter at least 2 valid numbers separated by commas or spaces');
+                return;
+            }
+            
+            const container = document.getElementById('returns-container');
+            container.innerHTML = '';
+            periodCount = 0;
+            
+            values.forEach((val, i) => {
+                addReturn();
+                const input = container.querySelectorAll('input')[i];
+                input.value = val;
+                styleReturn(input);
+            });
+            
+            document.getElementById('quickInput').value = '';
+        }
+        
+        function getReturns() {
+            const returns = [];
+            document.querySelectorAll('.return-row input').forEach(input => {
+                const val = parseFloat(input.value);
+                if (!isNaN(val)) returns.push(val);
+            });
+            return returns;
+        }
+        
+        function calculate() {
+            const returns = getReturns();
+            const isSample = document.getElementById('varianceType').value === 'sample';
+            
+            const errorBox = document.getElementById('error');
+            const resultsBox = document.getElementById('results');
+            
+            errorBox.style.display = 'none';
+            resultsBox.style.display = 'none';
+            
+            try {
+                if (returns.length < 2) throw new Error('Please enter at least 2 returns');
+                
+                const n = returns.length;
+                const sum = returns.reduce((a, b) => a + b, 0);
+                const mean = sum / n;
+                
+                const squaredDiffs = returns.map(r => Math.pow(r - mean, 2));
+                const sumSquaredDiffs = squaredDiffs.reduce((a, b) => a + b, 0);
+                const variance = sumSquaredDiffs / (isSample ? n - 1 : n);
+                const stdDev = Math.sqrt(variance);
+                
+                const min = Math.min(...returns);
+                const max = Math.max(...returns);
+                const range = max - min;
+                
+                document.getElementById('r-mean').textContent = mean.toFixed(2) + '%';
+                document.getElementById('r-std').textContent = stdDev.toFixed(2) + '%';
+                document.getElementById('r-var').textContent = variance.toFixed(2);
+                document.getElementById('r-n').textContent = n;
+                document.getElementById('r-range').textContent = range.toFixed(2) + '%';
+                document.getElementById('r-sum').textContent = sum.toFixed(2) + '%';
+                
+                // Interpretation
+                let riskLevel, interpretation;
+                if (stdDev < 10) {
+                    riskLevel = 'Low';
+                    interpretation = 'relatively stable returns, similar to bonds or utilities';
+                } else if (stdDev < 20) {
+                    riskLevel = 'Moderate';
+                    interpretation = 'typical stock market volatility';
+                } else if (stdDev < 30) {
+                    riskLevel = 'High';
+                    interpretation = 'higher volatility, like growth stocks or emerging markets';
+                } else {
+                    riskLevel = 'Very High';
+                    interpretation = 'extremely volatile, like individual small-cap stocks or crypto';
+                }
+                
+                document.getElementById('interpretation').innerHTML = `
+                    <strong>Risk Assessment:</strong> ${riskLevel} volatility — ${interpretation}.<br>
+                    <strong>95% Range:</strong> In a normal distribution, returns would typically fall between 
+                    ${(mean - 2 * stdDev).toFixed(1)}% and ${(mean + 2 * stdDev).toFixed(1)}%.
+                `;
+                
+                resultsBox.style.display = 'block';
+                
+            } catch (err) {
+                errorBox.textContent = err.message;
+                errorBox.style.display = 'block';
+            }
+        }
+        
+        function clearAll() {
+            initializeReturns();
+            document.getElementById('quickInput').value = '';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('results').style.display = 'none';
+        }
+        
+        initializeReturns();
+    </script>
+</body>
+</html>

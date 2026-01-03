@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 10: Leverage & WACC | The Finance Framework</title>
+    <style>
+        :root { --maize: #FFCB05; --blue: #00274C; --light-blue: #E6EEF4; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #fff; min-height: 100vh; padding: 20px; }
+        .container { max-width: 520px; margin: 0 auto; }
+        .header { background-color: var(--blue); color: white; padding: 20px; border-radius: 12px 12px 0 0; text-align: center; }
+        .header .chapter { font-size: 0.9rem; opacity: 0.9; margin-bottom: 5px; }
+        .header h1 { font-size: 1.4rem; font-weight: 600; margin-bottom: 8px; }
+        .header p { font-size: 0.85rem; opacity: 0.8; }
+        .tabs { display: flex; background-color: var(--light-blue); border-left: 2px solid var(--blue); border-right: 2px solid var(--blue); }
+        .tab { flex: 1; padding: 12px 8px; border: none; background-color: transparent; color: var(--blue); cursor: pointer; font-weight: 600; font-size: 0.85rem; text-align: center; }
+        .tab.active { background-color: var(--blue); color: white; }
+        .tab .desc { font-size: 0.65rem; font-weight: 400; opacity: 0.8; margin-top: 2px; }
+        .main-content { background-color: var(--light-blue); padding: 20px; border-radius: 0 0 12px 12px; border: 2px solid var(--blue); border-top: none; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .assumptions-box { background-color: var(--blue); color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .assumptions-box h4 { color: var(--maize); font-size: 0.9rem; margin-bottom: 10px; }
+        .assumptions-box ul { margin: 0; padding-left: 20px; font-size: 0.85rem; line-height: 1.6; }
+        .assumptions-box .implication { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.3); font-size: 0.85rem; }
+        .assumptions-box .implication strong { color: var(--maize); }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 6px; color: var(--blue); font-size: 0.9rem; }
+        .input-wrapper { position: relative; }
+        .input-wrapper .suffix { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #666; font-weight: 500; }
+        input { width: 100%; padding: 12px; font-size: 1rem; border: 2px solid var(--maize); border-radius: 8px; background-color: white; }
+        input:focus { outline: none; border-color: var(--blue); }
+        input.has-suffix { padding-right: 35px; }
+        .input-row { display: flex; gap: 15px; }
+        .input-row .form-group { flex: 1; }
+        .formula-box { background-color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; border: 1px solid var(--maize); }
+        .formula-box .label { font-size: 0.85rem; color: #666; margin-bottom: 5px; }
+        .formula-box .formula { font-family: Georgia, serif; font-size: 1.05rem; color: var(--blue); font-weight: 500; }
+        .formula-box .alt { font-size: 0.8rem; color: #888; margin-top: 8px; }
+        .formula-box .note { font-size: 0.85rem; color: var(--blue); margin-top: 8px; font-weight: 500; }
+        .preset-section { margin-top: 8px; }
+        .preset-section .label { font-size: 0.75rem; color: #666; margin-bottom: 6px; }
+        .preset-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+        .preset-btn { padding: 6px 10px; font-size: 0.7rem; border: 1px solid #ccc; border-radius: 4px; background-color: white; color: var(--blue); cursor: pointer; font-weight: 500; }
+        .preset-btn:hover { border-color: var(--blue); }
+        .preset-btn.active { background-color: var(--blue); color: white; border-color: var(--blue); }
+        .button-row { display: flex; gap: 10px; margin: 20px 0; }
+        .btn { padding: 14px; font-size: 1rem; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; }
+        .btn-primary { flex: 2; background-color: var(--maize); color: var(--blue); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,39,76,0.3); }
+        .btn-secondary { flex: 1; background-color: white; color: var(--blue); border: 2px solid var(--blue); }
+        .error-box { background-color: #fee2e2; color: #dc2626; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; text-align: center; display: none; }
+        .results-box { background-color: var(--blue); color: white; padding: 20px; border-radius: 8px; display: none; margin-bottom: 15px; }
+        .result-main { text-align: center; margin-bottom: 15px; }
+        .result-main .label { font-size: 0.9rem; opacity: 0.9; margin-bottom: 5px; }
+        .result-main .value { font-size: 2.2rem; font-weight: 700; color: var(--maize); }
+        .result-formula { background-color: rgba(255,255,255,0.1); padding: 10px; border-radius: 6px; margin-bottom: 10px; text-align: center; }
+        .result-formula .label { font-size: 0.75rem; opacity: 0.8; margin-bottom: 3px; }
+        .result-formula .formula { font-family: Georgia, serif; font-size: 0.95rem; }
+        .result-details { background-color: rgba(255,255,255,0.1); padding: 12px; border-radius: 6px; font-size: 0.85rem; }
+        .result-details .row { display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .result-details .row:last-child { margin-bottom: 0; }
+        .result-details .row .val { color: var(--maize); font-weight: 600; }
+        .result-details .highlight { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.2); color: var(--maize); }
+        .helper-text { padding: 15px; background-color: white; border-radius: 8px; font-size: 0.85rem; color: #666; line-height: 1.5; }
+        .helper-text strong { color: var(--blue); }
+        .real-world-box { background-color: #FFF8E1; border: 1px solid var(--maize); border-radius: 6px; padding: 12px; margin-top: 10px; }
+        .footer { text-align: center; margin-top: 15px; font-size: 0.8rem; color: #999; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="chapter">Chapter 10</div>
+            <h1>Leverage & WACC Calculator</h1>
+            <p>The Finance Framework</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('unlever')">
+                <div>Unlever β</div>
+                <div class="desc">Remove leverage</div>
+            </button>
+            <button class="tab" onclick="switchTab('relever')">
+                <div>Relever β</div>
+                <div class="desc">Apply leverage</div>
+            </button>
+            <button class="tab" onclick="switchTab('wacc')">
+                <div>WACC = Ra</div>
+                <div class="desc">Cost of capital</div>
+            </button>
+        </div>
+        
+        <div class="main-content">
+            <!-- UNLEVER TAB -->
+            <div class="tab-content active" id="unlever-tab">
+                <div class="formula-box">
+                    <div class="label">Unlevering Formula (with βD)</div>
+                    <div class="formula">βU = (βL + βD × D/E) / (1 + D/E)</div>
+                    <div class="alt">Equivalent: βU = wE × βL + wD × βD</div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Levered Beta (βL) — Observed Equity Beta</label>
+                    <input type="number" id="unlever-bl" step="0.01" placeholder="e.g., 1.20">
+                </div>
+                
+                <div class="form-group">
+                    <label>Debt-to-Equity Ratio (D/E)</label>
+                    <input type="number" id="unlever-de" step="0.01" placeholder="e.g., 0.50">
+                </div>
+                
+                <div class="form-group">
+                    <label>Beta of Debt (βD)</label>
+                    <input type="number" id="unlever-bd" step="0.01" placeholder="e.g., 0.10" value="0.10">
+                    <div class="preset-section">
+                        <div class="label">By credit rating:</div>
+                        <div class="preset-buttons" id="unlever-presets">
+                            <button class="preset-btn" onclick="setDebtBeta('unlever', 0.05)">AAA: 0.05</button>
+                            <button class="preset-btn active" onclick="setDebtBeta('unlever', 0.10)">A/BBB: 0.10</button>
+                            <button class="preset-btn" onclick="setDebtBeta('unlever', 0.20)">BB: 0.20</button>
+                            <button class="preset-btn" onclick="setDebtBeta('unlever', 0.30)">B: 0.30</button>
+                            <button class="preset-btn" onclick="setDebtBeta('unlever', 0.50)">CCC: 0.50</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- RELEVER TAB -->
+            <div class="tab-content" id="relever-tab">
+                <div class="formula-box">
+                    <div class="label">Relevering Formula (with βD)</div>
+                    <div class="formula">βL = βU × (1 + D/E) − βD × D/E</div>
+                    <div class="alt">Equivalent: βL = βU + (βU − βD) × D/E</div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Unlevered Beta (βU) — Asset Beta</label>
+                    <input type="number" id="relever-bu" step="0.01" placeholder="e.g., 0.85">
+                </div>
+                
+                <div class="form-group">
+                    <label>Target Debt-to-Equity Ratio (D/E)</label>
+                    <input type="number" id="relever-de" step="0.01" placeholder="e.g., 0.40">
+                </div>
+                
+                <div class="form-group">
+                    <label>Beta of Debt (βD) at Target Structure</label>
+                    <input type="number" id="relever-bd" step="0.01" placeholder="e.g., 0.10" value="0.10">
+                    <div class="preset-section">
+                        <div class="label">By credit rating:</div>
+                        <div class="preset-buttons" id="relever-presets">
+                            <button class="preset-btn" onclick="setDebtBeta('relever', 0.05)">AAA: 0.05</button>
+                            <button class="preset-btn active" onclick="setDebtBeta('relever', 0.10)">A/BBB: 0.10</button>
+                            <button class="preset-btn" onclick="setDebtBeta('relever', 0.20)">BB: 0.20</button>
+                            <button class="preset-btn" onclick="setDebtBeta('relever', 0.30)">B: 0.30</button>
+                            <button class="preset-btn" onclick="setDebtBeta('relever', 0.50)">CCC: 0.50</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- WACC TAB -->
+            <div class="tab-content" id="wacc-tab">
+                <div class="assumptions-box">
+                    <h4>Key Assumptions</h4>
+                    <ul>
+                        <li>Corporate taxes exist on operating income</li>
+                        <li>Interest payments are <strong>NOT</strong> tax-deductible</li>
+                    </ul>
+                    <div class="implication">
+                        <strong>Implication:</strong> WACC = Ra = Return on Unlevered Equity — constant across all capital structures.
+                    </div>
+                </div>
+                
+                <div class="formula-box">
+                    <div class="label">Weighted Average Cost of Capital</div>
+                    <div class="formula">WACC = wE × RE + wD × RD</div>
+                    <div class="note">= Ra (Return on Assets)</div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="form-group">
+                        <label>Equity Weight (%)</label>
+                        <input type="number" id="wacc-we" step="0.1" placeholder="e.g., 70" oninput="balanceWeights('we')">
+                    </div>
+                    <div class="form-group">
+                        <label>Debt Weight (%)</label>
+                        <input type="number" id="wacc-wd" step="0.1" placeholder="e.g., 30" oninput="balanceWeights('wd')">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Cost of Equity (RE) %</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="wacc-re" step="0.1" class="has-suffix" placeholder="e.g., 12">
+                        <span class="suffix">%</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Cost of Debt (RD) %</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="wacc-rd" step="0.1" class="has-suffix" placeholder="e.g., 6">
+                        <span class="suffix">%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="button-row">
+                <button class="btn btn-primary" onclick="calculate()">Calculate</button>
+                <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+            </div>
+            
+            <div class="error-box" id="error"></div>
+            
+            <div class="results-box" id="results">
+                <div class="result-main">
+                    <div class="label" id="result-label">Result</div>
+                    <div class="value" id="result-value">0</div>
+                </div>
+                <div class="result-formula">
+                    <div class="label">Formula Used</div>
+                    <div class="formula" id="result-formula">—</div>
+                </div>
+                <div class="result-details" id="result-details"></div>
+            </div>
+            
+            <div class="helper-text" id="helper-text">
+                <strong>Why include βD?</strong> Debt has systematic risk too. Investment-grade debt typically has βD of 0.05–0.15, while junk bonds can have βD of 0.30–0.50.
+            </div>
+        </div>
+        
+        <div class="footer">
+            © The Finance Framework — Professor Gautam Kaul<br>
+            Ross School of Business, University of Michigan
+        </div>
+    </div>
+    
+    <script>
+        let currentTab = 'unlever';
+        
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', ['unlever','relever','wacc'][i] === tab));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(tab + '-tab').classList.add('active');
+            
+            const helpers = {
+                'unlever': '<strong>Why include βD?</strong> Debt has systematic risk too. Investment-grade debt typically has βD of 0.05–0.15, while junk bonds can have βD of 0.30–0.50.',
+                'relever': '<strong>Relevering:</strong> Apply leverage to find the equity beta for a target capital structure. Higher D/E increases equity beta (and risk).',
+                'wacc': '<strong>Why WACC = Ra?</strong> Firm value is determined by real assets. Financing simply divides claims—it cannot change total value or required return.<div class="real-world-box"><strong>Real-World Twist:</strong> In practice, interest is tax-deductible. A common simplification uses RD × (1−T). However, this ignores bankruptcy costs and raises unresolved questions about discount rates for tax shields.</div>'
+            };
+            document.getElementById('helper-text').innerHTML = helpers[tab];
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('results').style.display = 'none';
+        }
+        
+        function setDebtBeta(tab, value) {
+            document.getElementById(tab + '-bd').value = value;
+            document.querySelectorAll(`#${tab}-presets .preset-btn`).forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.includes(value.toFixed(2)));
+            });
+        }
+        
+        function balanceWeights(changed) {
+            const weInput = document.getElementById('wacc-we');
+            const wdInput = document.getElementById('wacc-wd');
+            if (changed === 'we') {
+                const we = parseFloat(weInput.value);
+                if (!isNaN(we) && we >= 0 && we <= 100) wdInput.value = (100 - we).toFixed(1);
+            } else {
+                const wd = parseFloat(wdInput.value);
+                if (!isNaN(wd) && wd >= 0 && wd <= 100) weInput.value = (100 - wd).toFixed(1);
+            }
+        }
+        
+        function calculate() {
+            const errorBox = document.getElementById('error');
+            const resultsBox = document.getElementById('results');
+            errorBox.style.display = 'none';
+            resultsBox.style.display = 'none';
+            
+            try {
+                let result, resultLabel, formula, details;
+                
+                if (currentTab === 'unlever') {
+                    const bL = parseFloat(document.getElementById('unlever-bl').value);
+                    const bD = parseFloat(document.getElementById('unlever-bd').value);
+                    const DE = parseFloat(document.getElementById('unlever-de').value);
+                    if (isNaN(bL) || isNaN(DE)) throw new Error('Please enter Levered Beta and D/E Ratio');
+                    if (isNaN(bD)) throw new Error('Please enter Beta of Debt');
+                    
+                    const bU = (bL + bD * DE) / (1 + DE);
+                    const bU_naive = bL / (1 + DE);
+                    const wE = 1 / (1 + DE);
+                    const wD = DE / (1 + DE);
+                    
+                    result = bU.toFixed(4);
+                    resultLabel = 'Unlevered Beta (Asset Beta)';
+                    formula = 'βU = (βL + βD × D/E) / (1 + D/E)';
+                    details = `
+                        <div class="row"><span>Weights:</span><span class="val">E: ${(wE*100).toFixed(1)}% | D: ${(wD*100).toFixed(1)}%</span></div>
+                        <div class="row"><span>Contributions:</span><span class="val">βL: ${(wE*bL).toFixed(4)} | βD: ${(wD*bD).toFixed(4)}</span></div>
+                        <div class="highlight"><strong>If βD = 0:</strong> βU would be ${bU_naive.toFixed(4)}</div>
+                    `;
+                } else if (currentTab === 'relever') {
+                    const bU = parseFloat(document.getElementById('relever-bu').value);
+                    const bD = parseFloat(document.getElementById('relever-bd').value);
+                    const DE = parseFloat(document.getElementById('relever-de').value);
+                    if (isNaN(bU) || isNaN(DE)) throw new Error('Please enter Unlevered Beta and Target D/E');
+                    if (isNaN(bD)) throw new Error('Please enter Beta of Debt');
+                    
+                    const bL = bU * (1 + DE) - bD * DE;
+                    const bL_naive = bU * (1 + DE);
+                    
+                    result = bL.toFixed(4);
+                    resultLabel = 'Relevered Beta (Equity Beta)';
+                    formula = 'βL = βU × (1 + D/E) − βD × D/E';
+                    details = `
+                        <div class="row"><span>Leverage multiplier:</span><span class="val">${(1+DE).toFixed(2)}×</span></div>
+                        <div class="row"><span>Spread (βU − βD):</span><span class="val">${(bU-bD).toFixed(4)}</span></div>
+                        <div class="highlight"><strong>If βD = 0:</strong> βL would be ${bL_naive.toFixed(4)}</div>
+                    `;
+                } else {
+                    const wE = parseFloat(document.getElementById('wacc-we').value) / 100;
+                    const wD = parseFloat(document.getElementById('wacc-wd').value) / 100;
+                    const Re = parseFloat(document.getElementById('wacc-re').value) / 100;
+                    const Rd = parseFloat(document.getElementById('wacc-rd').value) / 100;
+                    if (isNaN(wE) || isNaN(wD) || isNaN(Re) || isNaN(Rd)) throw new Error('Please fill in all inputs');
+                    if (Math.abs(wE + wD - 1) > 0.01) throw new Error('Weights should sum to 100%');
+                    
+                    const wacc = wE * Re + wD * Rd;
+                    
+                    result = (wacc * 100).toFixed(2) + '%';
+                    resultLabel = 'WACC = Return on Assets (Ra)';
+                    formula = 'WACC = wE × RE + wD × RD';
+                    details = `
+                        <div class="row"><span>Equity contribution:</span><span class="val">${(wE*Re*100).toFixed(2)}%</span></div>
+                        <div class="row"><span>Debt contribution:</span><span class="val">${(wD*Rd*100).toFixed(2)}%</span></div>
+                        <div class="highlight"><strong>Key:</strong> WACC = Ra is constant across capital structures</div>
+                    `;
+                }
+                
+                document.getElementById('result-label').textContent = resultLabel;
+                document.getElementById('result-value').textContent = result;
+                document.getElementById('result-formula').textContent = formula;
+                document.getElementById('result-details').innerHTML = details;
+                resultsBox.style.display = 'block';
+            } catch (err) {
+                errorBox.textContent = err.message;
+                errorBox.style.display = 'block';
+            }
+        }
+        
+        function clearAll() {
+            document.querySelectorAll('input[type="number"]').forEach(input => {
+                input.value = input.id.includes('-bd') ? '0.10' : '';
+            });
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.includes('0.10'));
+            });
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('results').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
