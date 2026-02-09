@@ -51,6 +51,19 @@
         .helper-text { padding: 15px; background-color: white; border-radius: 8px; font-size: 0.85rem; color: #666; line-height: 1.5; }
         .helper-text strong { color: var(--blue); }
         .footer { text-align: center; margin-top: 15px; font-size: 0.8rem; color: #999; }
+    
+        .philosophy-note {
+            background: #fffbeb;
+            border: 1px solid #f6e05e;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 15px;
+            font-size: 0.82rem;
+            color: #744210;
+            text-align: center;
+            line-height: 1.5;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -62,6 +75,9 @@
         </div>
         
         <div class="main-content">
+            <div class="philosophy-note">
+                This calculator is an example of what can be built for a specific numerical problem—not a substitute for understanding. Real financial analysis requires building your own models, because the process of building is where understanding lives. The exercises in the book do not all require this calculator. Many are deliberately conceptual, because finance is ultimately about how you think, not how you calculate.
+            </div>
             <div class="form-group">
                 <label>Goal Type</label>
                 <select id="goalType" onchange="updateGoalType()">
@@ -176,7 +192,8 @@
         
         <div class="footer">
             © The Finance Framework — Professor Gautam Kaul<br>
-            Ross School of Business, University of Michigan
+            University of Michigan<br>
+            <a href="index.html" style="color: #00274C; margin-top: 8px; display: inline-block;">← All Calculators</a>
         </div>
     </div>
     

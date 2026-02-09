@@ -31,7 +31,19 @@
             padding: 30px;
             border-radius: 12px;
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: var(--maize);
         }
         
         .header h1 {
@@ -50,6 +62,33 @@
             margin-top: 15px;
             font-size: 0.9rem;
             opacity: 0.8;
+        }
+        
+        .header .badge {
+            display: inline-block;
+            background: var(--maize);
+            color: var(--blue);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+        
+        .philosophy-note {
+            background: #fffbeb;
+            border: 1px solid #f6e05e;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 25px;
+            font-size: 0.88rem;
+            color: #744210;
+            text-align: center;
+            line-height: 1.6;
+        }
+        
+        .philosophy-note strong {
+            color: #92400e;
         }
         
         .calculator-grid {
@@ -120,9 +159,16 @@
             <p>Interactive Calculators</p>
             <div class="author">
                 Professor Gautam Kaul<br>
-                Stephen M. Ross School of Business<br>
                 University of Michigan
             </div>
+            <div class="badge">10 Interactive Calculators</div>
+        </div>
+        
+        <div class="philosophy-note">
+            These calculators are <strong>examples</strong>&mdash;illustrations of what can be built for specific numerical problems.
+            They are not shortcuts. <strong>Calculators hide more than they reveal:</strong> a tool that hands you an answer can create the illusion of understanding where none exists.
+            In practice, you will need to build your own models&mdash;in Excel, in code, or even on paper&mdash;and it is precisely in that building that you will understand what is really going on.
+            <strong>The exercises in the book do not all require these calculators.</strong> Many are deliberately conceptual, because finance is ultimately about how you think, not how you calculate.
         </div>
         
         <div class="calculator-grid">
@@ -199,7 +245,7 @@
         
         <div class="footer">
             © The Finance Framework — Professor Gautam Kaul<br>
-            Ross School of Business, University of Michigan<br><br>
+            University of Michigan<br><br>
             <em>These calculators accompany "The Finance Framework (with Applications)"</em>
         </div>
     </div>
